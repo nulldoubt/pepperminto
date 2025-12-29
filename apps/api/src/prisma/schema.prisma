@@ -340,6 +340,7 @@ model knowledgeBase {
   updatedAt DateTime @default(now())
 
   title   String
+  slug    String   @unique
   content String
   tags    String[]
   author  String

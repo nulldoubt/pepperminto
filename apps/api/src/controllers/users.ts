@@ -12,6 +12,21 @@ export function userRoutes(fastify: FastifyInstance) {
     "/api/v1/users/all",
     {
       preHandler: requirePermission(["user::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              users: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const users = await prisma.user.findMany({
@@ -39,7 +54,31 @@ export function userRoutes(fastify: FastifyInstance) {
   // New user
   fastify.post(
     "/api/v1/user/new",
-
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            email: { type: "string" },
+            password: { type: "string" },
+            name: { type: "string" },
+            admin: { type: "boolean" },
+          },
+          required: ["email", "password", "name", "admin"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+              failed: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const session = await checkSession(request);
 
@@ -80,6 +119,28 @@ export function userRoutes(fastify: FastifyInstance) {
   // (ADMIN) Reset password
   fastify.put(
     "/api/v1/user/reset-password",
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            password: { type: "string" },
+            id: { type: "string" },
+          },
+          required: ["password", "id"],
+        },
+        response: {
+          201: {
+            type: "object",
+            properties: {
+              message: { type: "string" },
+              failed: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { password, id }: any = request.body;
 
@@ -105,6 +166,26 @@ export function userRoutes(fastify: FastifyInstance) {
   // Mark Notification as read
   fastify.get(
     "/api/v1/user/notifcation/:id",
+    {
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;
       const session = await checkSession(request);

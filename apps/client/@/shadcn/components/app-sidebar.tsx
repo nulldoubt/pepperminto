@@ -1,5 +1,6 @@
 import {
   Building,
+  BookOpen,
   FileText,
   ListPlus,
   Settings,
@@ -78,6 +79,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         internal: true,
       },
       {
+        title: "Knowledge Base",
+        url: `/${locale}/knowledge-base`,
+        icon: BookOpen,
+        isActive: location.pathname === "/knowledge-base" ? true : false,
+        initial: "k",
+        internal: true,
+      },
+      {
         title: "Issues",
         url: `/${locale}/issues`,
         icon: SquareKanban,
@@ -129,6 +138,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           break;
         case "d":
           location.push("/documents");
+          break;
+        case "k":
+          location.push("/knowledge-base");
           break;
         case "t":
           location.push("/issues");

@@ -9,6 +9,7 @@ import {
 import { Button } from "@radix-ui/themes";
 import {
   ContactIcon,
+  BookOpen,
   FileText,
   KeyRound,
   Mail,
@@ -88,6 +89,12 @@ export default function AdminLayout({ children }: any) {
       href: "/admin/roles",
       current: location.pathname === "/admin/roles",
       icon: RollerCoaster,
+    },
+    {
+      name: "Knowledge Base",
+      href: "/admin/knowledge-base",
+      current: location.pathname === "/admin/knowledge-base",
+      icon: BookOpen,
     },
     {
       name: "Logs",

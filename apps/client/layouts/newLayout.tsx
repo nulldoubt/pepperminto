@@ -21,6 +21,7 @@ import { classNames } from "@/shadcn/lib/utils";
 import {
   Bell,
   Building,
+  BookOpen,
   FileText,
   Settings,
   SquareKanban,
@@ -69,6 +70,14 @@ export default function NewLayout({ children }: any) {
       initial: "d",
       internal: true,
     },
+    {
+      name: "Knowledge Base",
+      href: `/${locale}/knowledge-base`,
+      icon: BookOpen,
+      current: location.pathname === "/knowledge-base" ? true : false,
+      initial: "k",
+      internal: true,
+    },
   ];
 
   function handleKeyPress(event: any) {
@@ -94,6 +103,9 @@ export default function NewLayout({ children }: any) {
           break;
         case "d":
           location.push("/documents");
+          break;
+        case "k":
+          location.push("/knowledge-base");
           break;
         case "t":
           location.push("/issues");

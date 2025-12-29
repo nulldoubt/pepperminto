@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0b0f14;
+  --foreground: #e2e8f0;
+  --surface: #0f172a;
+  --accent: #2dd4bf;
+}
+
+body {
+  color: var(--foreground);
+  background: radial-gradient(circle at top, #0f172a 0%, #0b0f14 55%, #070a0f 100%);
+  font-family: var(--font-sans);
+}
+
+.bg-grid {
+  background-image: radial-gradient(#1f2937 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+}
