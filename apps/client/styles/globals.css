@@ -61,6 +61,12 @@ body {
   background-color: hsl(var(--secondary)) !important;
 }
 
+.hover\:bg-gray-100:hover,
+.hover\:bg-gray-200:hover,
+.hover\:bg-gray-300:hover {
+  background-color: hsl(var(--secondary)) !important;
+}
+
 .text-gray-900,
 .text-gray-800 {
   color: hsl(var(--foreground)) !important;
