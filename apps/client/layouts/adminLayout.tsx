@@ -123,7 +123,7 @@ export default function AdminLayout({ children }: any) {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <div className="fixed inset-0 bg-gray-900/80" />
+              <div className="fixed inset-0 bg-black/70" />
               </Transition.Child>
 
               <div className="fixed inset-0 flex">
@@ -161,11 +161,11 @@ export default function AdminLayout({ children }: any) {
                       </div>
                     </Transition.Child>
                     {/* Sidebar component, swap this element with another sidebar if you like */}
-                    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-background px-6 pb-4">
+                    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-background px-6 pb-4 text-foreground">
                       <div className="flex align-middle flex-row h-14 items-center border-b-[1px]">
                         {/* <img className="h-8 w-auto" src="/logo.svg" alt="Workflow" /> */}
                         <Link href="https://peppermint.sh">
-                          <span className="text-3xl ml-2  hover:text-green-600 font-bold ">
+                          <span className="text-3xl ml-2 hover:text-primary font-bold text-foreground">
                             Peppermint
                           </span>
                         </Link>
@@ -183,9 +183,9 @@ export default function AdminLayout({ children }: any) {
                                     href={item.href}
                                     className={classNames(
                                       item.current
-                                        ? "bg-secondary dark:bg-primary"
-                                        : " hover:bg-[#F0F3F9] dark:hover:bg-white dark:hover:text-gray-900 ",
-                                      "group -mx-2 flex gap-x-3 p-1 rounded-md text-xs font-semibold leading-6"
+                                        ? "bg-secondary text-foreground"
+                                        : "hover:bg-secondary hover:text-foreground",
+                                      "group -mx-2 flex gap-x-3 p-1 rounded-md text-xs font-semibold leading-6 text-foreground"
                                     )}
                                   >
                                     <item.icon
@@ -212,11 +212,11 @@ export default function AdminLayout({ children }: any) {
           {/* Static sidebar for desktop */}
           <div className="hidden lg:fixed lg:inset-y-0 lg:z-10 lg:flex lg:w-64 2xl:w-72 lg:flex-col border-r">
             {/* Sidebar component, swap this element with another sidebar if you like */}
-            <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-background pb-4">
+            <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-background pb-4 text-foreground">
               <div className="flex align-middle flex-row h-14 items-center border-b px-6">
                 {/* <img className="h-8 w-auto" src="/logo.svg" alt="Workflow" /> */}
                 <Link href="https://peppermint.sh">
-                  <span className="text-3xl ml-2  hover:text-green-600 font-bold ">
+                  <span className="text-3xl ml-2 hover:text-primary font-bold text-foreground">
                     Peppermint
                   </span>
                 </Link>
@@ -231,9 +231,9 @@ export default function AdminLayout({ children }: any) {
                             href={item.href}
                             className={classNames(
                               item.current
-                                ? "bg-secondary dark:bg-primary"
-                                : " hover:bg-[#F0F3F9] dark:hover:bg-white dark:hover:text-gray-900 ",
-                              "group -mx-2 flex gap-x-3 p-1 rounded-md text-xs font-semibold leading-6"
+                                ? "bg-secondary text-foreground"
+                                : "hover:bg-secondary hover:text-foreground",
+                              "group -mx-2 flex gap-x-3 p-1 rounded-md text-xs font-semibold leading-6 text-foreground"
                             )}
                           >
                             <item.icon
@@ -273,10 +273,7 @@ export default function AdminLayout({ children }: any) {
               </button>
 
               {/* Separator */}
-              <div
-                className="h-6 w-px bg-gray-400 lg:hidden"
-                aria-hidden="true"
-              />
+              <div className="h-6 w-px bg-border lg:hidden" aria-hidden="true" />
 
               <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 items-center">
                 <div className="sm:flex hidden w-full justify-start items-center space-x-6">
@@ -292,7 +289,7 @@ export default function AdminLayout({ children }: any) {
                 <div className="flex w-full justify-end items-center gap-x-2 lg:gap-x-2 ">
                   <Button
                     variant="outline"
-                    className="relative rounded-md p-2 text-gray-400 hover:text-gray-500 hover:cursor-pointer focus:outline-none"
+                    className="relative rounded-md p-2 text-muted-foreground hover:text-foreground hover:cursor-pointer focus:outline-none"
                   >
                     <Link href="/notifications">
                       <InboxStackIcon className="h-4 w-4 text-foreground" />

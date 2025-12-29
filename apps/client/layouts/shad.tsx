@@ -1,5 +1,3 @@
-import { Button } from "@radix-ui/themes";
-import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -7,6 +5,8 @@ import { AccountDropdown } from "../components/AccountDropdown";
 
 import { AppSidebar } from "@/shadcn/components/app-sidebar";
 import { CommandMenu } from "@/shadcn/components/command-menu";
+import { ThemeToggle } from "@/shadcn/components/theme-toggle";
+import { Button } from "@/shadcn/ui/button";
 import {
   SidebarProvider,
   SidebarTrigger,
@@ -19,8 +19,6 @@ export default function ShadLayout({ children }: any) {
 
   const { loading, user, fetchUserProfile } = useUser();
 
-
-  const { t, lang } = useTranslation("peppermint");
 
   if (!user) {
     location.push("/auth/login");
@@ -38,68 +36,78 @@ export default function ShadLayout({ children }: any) {
   return (
     !loading &&
     user && (
-      <div className="min-h-screen overflow-hidden">
+      <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
+        <div className="pointer-events-none absolute inset-0 bg-grid opacity-35" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_top,_hsl(var(--primary)/0.12),_transparent_60%)]" />
         <SidebarProvider>
-          <AppSidebar />
-          <div className="w-full">
-            <div className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-x-4 border-b bg-background px-4 sm:gap-x-6">
-              <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 items-center">
-                <SidebarTrigger title="[" />
-                <div className="sm:flex hidden w-full justify-start items-center space-x-6">
-                  {user.isAdmin && (
-                    <Link href="https://github.com/Peppermint-Lab/peppermint/releases">
-                      <span className="inline-flex items-center rounded-md bg-green-700/10 px-3 py-2 text-xs font-medium text-green-600 ring-1 ring-inset ring-green-500/20">
-                        Version {process.env.NEXT_PUBLIC_CLIENT_VERSION}
-                      </span>
-                    </Link>
-                  )}
+          <div className="relative z-10 flex min-h-screen w-full">
+            <AppSidebar variant="floating" />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <div className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-x-4 border-b border-border/60 bg-background/70 px-4 backdrop-blur sm:gap-x-6">
+                <div className="flex flex-1 items-center gap-x-4 self-stretch lg:gap-x-6">
+                  <SidebarTrigger title="[" className="text-muted-foreground" />
+                  <div className="hidden w-full items-center justify-start space-x-6 sm:flex">
+                    {user.isAdmin && (
+                      <Link href="https://github.com/Peppermint-Lab/peppermint/releases">
+                        <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                          Version {process.env.NEXT_PUBLIC_CLIENT_VERSION}
+                        </span>
+                      </Link>
+                    )}
 
-                  <CommandMenu />
-                </div>
+                    <CommandMenu />
+                  </div>
 
-                <div className="flex w-full sticky right-0 justify-end items-center gap-x-2 lg:gap-x-2 ">
-                  <Button
-                    variant="outline"
-                    className="relative rounded-md p-2 text-gray-400 hover:text-gray-500 hover:cursor-pointer focus:outline-none"
-                  >
-                    <Link href="/notifications">
-                      <Bell className="h-4 w-4 text-foreground" />
-                      {user.notifcations.filter(
-                        (notification) => !notification.read
-                      ).length > 0 && (
-                        <svg
-                          className="h-2.5 w-2.5 absolute bottom-6 left-6 animate-pulse fill-green-500"
-                          viewBox="0 0 6 6"
-                          aria-hidden="true"
-                        >
-                          <circle cx={3} cy={3} r={3} />
-                        </svg>
-                      )}
-                    </Link>
-                  </Button>
-
-                  {user.isAdmin && (
-                    <Link
-                      href="https://github.com/Peppermint-Lab/peppermint/discussions"
-                      target="_blank"
-                      className="hover:cursor-pointer"
+                  <div className="flex w-full items-center justify-end gap-x-2 lg:gap-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative h-9 w-9 rounded-full border border-border/60 bg-background/70 text-muted-foreground shadow-sm backdrop-blur transition hover:bg-accent/50 hover:text-foreground"
+                      asChild
                     >
-                      <Button
-                        variant="outline"
-                        className="text-foreground hover:cursor-pointer whitespace-nowrap"
-                      >
-                        Send Feedback
-                      </Button>
-                    </Link>
-                  )}
+                      <Link href="/notifications">
+                        <span className="relative flex items-center justify-center">
+                          <Bell className="h-4 w-4" />
+                          {user.notifcations.filter(
+                            (notification) => !notification.read
+                          ).length > 0 && (
+                            <svg
+                              className="absolute bottom-6 left-6 h-2.5 w-2.5 animate-pulse fill-primary"
+                              viewBox="0 0 6 6"
+                              aria-hidden="true"
+                            >
+                              <circle cx={3} cy={3} r={3} />
+                            </svg>
+                          )}
+                        </span>
+                      </Link>
+                    </Button>
 
-                  <AccountDropdown />
+                    <ThemeToggle />
+
+                    {user.isAdmin && (
+                      <Link
+                        href="https://github.com/Peppermint-Lab/peppermint/discussions"
+                        target="_blank"
+                        className="hover:cursor-pointer"
+                      >
+                        <Button
+                          variant="outline"
+                          className="border-border/60 bg-background/70 text-foreground shadow-sm backdrop-blur hover:bg-accent/50"
+                        >
+                          Send Feedback
+                        </Button>
+                      </Link>
+                    )}
+
+                    <AccountDropdown />
+                  </div>
                 </div>
               </div>
+              {!loading && !user.external_user && (
+                <main className="min-h-screen">{children}</main>
+              )}
             </div>
-            {!loading && !user.external_user && (
-              <main className="bg-background min-h-screen">{children}</main>
-            )}
           </div>
         </SidebarProvider>
       </div>

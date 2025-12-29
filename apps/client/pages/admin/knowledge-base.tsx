@@ -115,7 +115,7 @@ export default function KnowledgeBaseAdmin() {
             <h1 className="text-3xl font-extrabold text-foreground">
               Knowledge Base
             </h1>
-            <p className="mt-2 text-sm text-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               Create and publish help center articles for customers.
             </p>
           </div>
@@ -123,7 +123,7 @@ export default function KnowledgeBaseAdmin() {
             {mode === "list" ? (
               <button
                 onClick={() => setMode("edit")}
-                className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
               >
                 New Article
               </button>
@@ -133,7 +133,7 @@ export default function KnowledgeBaseAdmin() {
                   setMode("list");
                   resetForm();
                 }}
-                className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                className="rounded-full border border-border/70 bg-background/70 px-4 py-2 text-sm font-semibold text-foreground shadow-sm backdrop-blur hover:bg-accent/50"
               >
                 Back to list
               </button>
@@ -144,36 +144,37 @@ export default function KnowledgeBaseAdmin() {
         {mode === "list" && (
           <div className="mt-8 space-y-4">
             {articles.length === 0 ? (
-              <div className="rounded-lg border border-gray-200 bg-white p-6 text-foreground">
+              <div className="rounded-2xl border border-border/60 bg-card/70 p-6 text-foreground shadow-sm backdrop-blur">
                 No knowledge base entries yet.
               </div>
             ) : (
               articles.map((article: any) => (
                 <div
                   key={article.id}
-                  className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-4 rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <h2 className="text-lg font-semibold text-foreground">
                       {article.title}
                     </h2>
-                    <p className="mt-1 text-sm text-foreground">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {article.author} • {article.slug}
                     </p>
-                    <p className="mt-1 text-xs uppercase tracking-wide text-foreground">
-                      {article.public ? "Published" : "Draft"} • {formatTags(article.tags) || "No tags"}
+                    <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+                      {article.public ? "Published" : "Draft"} •{" "}
+                      {formatTags(article.tags) || "No tags"}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => editArticle(article)}
-                      className="rounded bg-gray-900 px-4 py-2 text-sm font-semibold text-white"
+                      className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => deleteArticle(article.id)}
-                      className="rounded border border-red-600 px-4 py-2 text-sm font-semibold text-red-600"
+                      className="rounded-full border border-destructive/60 px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10"
                     >
                       Delete
                     </button>
@@ -185,7 +186,7 @@ export default function KnowledgeBaseAdmin() {
         )}
 
         {mode === "edit" && (
-          <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mt-8 rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur">
             <div className="grid gap-6">
               <div>
                 <label className="block text-sm font-medium text-foreground">
@@ -194,7 +195,7 @@ export default function KnowledgeBaseAdmin() {
                 <input
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-foreground"
+                  className="mt-2 w-full rounded-md border border-border/70 bg-background/70 px-3 py-2 text-sm text-foreground shadow-sm backdrop-blur focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   placeholder="New article title"
                 />
               </div>
@@ -206,7 +207,7 @@ export default function KnowledgeBaseAdmin() {
                 <input
                   value={slug}
                   onChange={(event) => setSlug(event.target.value)}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-foreground"
+                  className="mt-2 w-full rounded-md border border-border/70 bg-background/70 px-3 py-2 text-sm text-foreground shadow-sm backdrop-blur focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   placeholder="optional-custom-slug"
                 />
               </div>
@@ -219,7 +220,7 @@ export default function KnowledgeBaseAdmin() {
                   <input
                     value={author}
                     onChange={(event) => setAuthor(event.target.value)}
-                    className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-foreground"
+                    className="mt-2 w-full rounded-md border border-border/70 bg-background/70 px-3 py-2 text-sm text-foreground shadow-sm backdrop-blur focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                     placeholder="Author name"
                   />
                 </div>
@@ -230,7 +231,7 @@ export default function KnowledgeBaseAdmin() {
                   <input
                     value={tags}
                     onChange={(event) => setTags(event.target.value)}
-                    className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-foreground"
+                    className="mt-2 w-full rounded-md border border-border/70 bg-background/70 px-3 py-2 text-sm text-foreground shadow-sm backdrop-blur focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                     placeholder="install, email, sso"
                   />
                 </div>
@@ -243,16 +244,17 @@ export default function KnowledgeBaseAdmin() {
                 <textarea
                   value={body}
                   onChange={(event) => setBody(event.target.value)}
-                  className="mt-2 h-48 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-foreground"
+                  className="mt-2 h-48 w-full rounded-md border border-border/70 bg-background/70 px-3 py-2 text-sm text-foreground shadow-sm backdrop-blur focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   placeholder="Write the article content here..."
                 />
               </div>
 
-              <label className="inline-flex items-center gap-3 text-sm text-foreground">
+              <label className="inline-flex items-center gap-3 text-sm text-muted-foreground">
                 <input
                   type="checkbox"
                   checked={published}
                   onChange={(event) => setPublished(event.target.checked)}
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
                 />
                 Publish immediately
               </label>
@@ -260,7 +262,7 @@ export default function KnowledgeBaseAdmin() {
               <div className="flex gap-3">
                 <button
                   onClick={saveArticle}
-                  className="rounded bg-gray-900 px-6 py-2 text-sm font-semibold text-white"
+                  className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
                 >
                   {activeId ? "Update Article" : "Create Article"}
                 </button>
@@ -269,7 +271,7 @@ export default function KnowledgeBaseAdmin() {
                     setMode("list");
                     resetForm();
                   }}
-                  className="rounded border border-gray-300 px-6 py-2 text-sm font-semibold text-foreground"
+                  className="rounded-full border border-border/70 px-6 py-2 text-sm font-semibold text-foreground shadow-sm hover:bg-accent/40"
                 >
                   Cancel
                 </button>

@@ -15,6 +15,7 @@ import { Theme } from "@radix-ui/themes";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "next-themes";
 
 import { SessionProvider, useUser } from "../store/session";
 
@@ -26,10 +27,7 @@ import NoteBookLayout from "../layouts/notebook";
 import PortalLayout from "../layouts/portalLayout";
 import Settings from "../layouts/settings";
 import ShadLayout from "../layouts/shad";
-import GlobalShortcut from "@/shadcn/block/GlobalShortcut";
 import { Toaster } from "@/shadcn/ui/toaster";
-
-import { SidebarProvider } from "@/shadcn/ui/sidebar";
 
 const queryClient = new QueryClient();
 
@@ -66,104 +64,98 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: any) {
 
   if (router.asPath.slice(0, 5) === "/auth") {
     return (
-      <>
-        <AppHead />
-        <Component {...pageProps} />
-        <Toaster />
-      </>
-    );
-  }
-
-  if (router.pathname.includes("/admin")) {
-    return (
-      <SessionProvider>
-        <Theme>
-          <QueryClientProvider client={queryClient}>
-            <Auth>
-              <AdminLayout>
-                <AppHead />
-                <Component {...pageProps} />
-                <Toaster />
-              </AdminLayout>
-            </Auth>
-          </QueryClientProvider>
-        </Theme>
-      </SessionProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <>
+          <AppHead />
+          <Component {...pageProps} />
+          <Toaster />
+        </>
+      </ThemeProvider>
     );
   }
 
   if (router.pathname.includes("/settings")) {
     return (
-      <SessionProvider>
-        <Theme>
-          <QueryClientProvider client={queryClient}>
-            <Auth>
-              <ShadLayout>
-                <Settings>
-                  <AppHead />
-                  <Component {...pageProps} />
-                  <Toaster />
-                </Settings>
-              </ShadLayout>
-            </Auth>
-          </QueryClientProvider>
-        </Theme>
-      </SessionProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <SessionProvider>
+          <Theme appearance="inherit">
+            <QueryClientProvider client={queryClient}>
+              <Auth>
+                <ShadLayout>
+                  <Settings>
+                    <AppHead />
+                    <Component {...pageProps} />
+                    <Toaster />
+                  </Settings>
+                </ShadLayout>
+              </Auth>
+            </QueryClientProvider>
+          </Theme>
+        </SessionProvider>
+      </ThemeProvider>
     );
   }
 
   if (router.pathname.startsWith("/portal")) {
     return (
-      <SessionProvider>
-        <Theme>
-          <QueryClientProvider client={queryClient}>
-            <Auth>
-              <PortalLayout>
-                <AppHead />
-                <Component {...pageProps} />
-                <Toaster />
-              </PortalLayout>
-            </Auth>
-          </QueryClientProvider>
-        </Theme>
-      </SessionProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <SessionProvider>
+          <Theme appearance="inherit">
+            <QueryClientProvider client={queryClient}>
+              <Auth>
+                <PortalLayout>
+                  <AppHead />
+                  <Component {...pageProps} />
+                  <Toaster />
+                </PortalLayout>
+              </Auth>
+            </QueryClientProvider>
+          </Theme>
+        </SessionProvider>
+      </ThemeProvider>
     );
   }
 
   if (router.pathname === "/onboarding") {
     return (
-      <SessionProvider>
-        <AppHead />
-        <Component {...pageProps} />
-        <Toaster />
-      </SessionProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <SessionProvider>
+          <AppHead />
+          <Component {...pageProps} />
+          <Toaster />
+        </SessionProvider>
+      </ThemeProvider>
     );
   }
 
   if (router.pathname === "/submit") {
     return (
-      <>
-        <AppHead />
-        <Component {...pageProps} />
-        <Toaster />
-      </>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <>
+          <AppHead />
+          <Component {...pageProps} />
+          <Toaster />
+        </>
+      </ThemeProvider>
     );
   }
 
   return (
-    <SessionProvider>
-      <Theme>
-        <QueryClientProvider client={queryClient}>
-          <Auth>
-            <ShadLayout>
-              <AppHead />
-              <Component {...pageProps} />
-              <Toaster />
-            </ShadLayout>
-          </Auth>
-        </QueryClientProvider>
-      </Theme>
-    </SessionProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <SessionProvider>
+        <Theme appearance="inherit">
+          <QueryClientProvider client={queryClient}>
+            <Auth>
+              <ShadLayout>
+                <AppHead />
+                <Component {...pageProps} />
+                <Toaster />
+              </ShadLayout>
+            </Auth>
+          </QueryClientProvider>
+        </Theme>
+      </SessionProvider>
+    </ThemeProvider>
   );
 }
 

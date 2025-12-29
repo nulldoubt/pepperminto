@@ -55,7 +55,7 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) =>
           item.items ? (
-            <SidebarMenuItem>
+            <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 tooltip={!hideKeyboardShortcuts ? item.initial : item.title}
                 onClick={() => router.push(item.url)}

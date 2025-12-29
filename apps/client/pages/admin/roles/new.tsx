@@ -121,7 +121,7 @@ export default function Roles() {
           </div>
           <div
             className={`flex-1 h-0.5 mx-4 ${
-              step === 2 ? "bg-blue-600" : "bg-gray-300"
+              step === 2 ? "bg-blue-600" : "bg-muted"
             }`}
           ></div>
           <div

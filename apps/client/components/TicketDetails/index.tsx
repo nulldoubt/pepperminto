@@ -1176,7 +1176,7 @@ export default function Ticket() {
                                     disabled={data.ticket.locked}
                                     className={`inline-flex justify-center items-center gap-x-1.5 rounded-md ${
                                       data.ticket.locked
-                                        ? "bg-gray-300 cursor-not-allowed"
+                                        ? "bg-muted cursor-not-allowed"
                                         : "bg-white hover:bg-gray-50"
                                     } px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300`}
                                   >
@@ -1199,7 +1199,7 @@ export default function Ticket() {
                                     disabled={data.ticket.locked}
                                     className={`inline-flex justify-center gap-x-1.5 rounded-md ${
                                       data.ticket.locked
-                                        ? "bg-gray-300 cursor-not-allowed"
+                                        ? "bg-muted cursor-not-allowed"
                                         : "bg-white hover:bg-gray-50"
                                     } px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300`}
                                   >
