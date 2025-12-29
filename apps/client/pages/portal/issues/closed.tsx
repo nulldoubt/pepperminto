@@ -5,7 +5,7 @@ import Loader from "react-spinners/ClipLoader";
 import { getCookie } from "cookies-next";
 import moment from "moment";
 import Link from "next/link";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useUser } from "../../../store/session";
 
 function classNames(...classes: any) {
@@ -26,9 +26,10 @@ export default function Tickets() {
   const { t } = useTranslation("peppermint");
 
   const token = getCookie("session");
-  const { data, status, error } = useQuery("allusertickets", () =>
-    getUserTickets(token)
-  );
+  const { data, isLoading, isSuccess } = useQuery({
+    queryKey: ["allusertickets"],
+    queryFn: () => getUserTickets(token),
+  });
 
   const user = useUser();
 
@@ -38,13 +39,13 @@ export default function Tickets() {
 
   return (
     <div>
-      {status === "loading" && (
+      {isLoading && (
         <div className="flex flex-col justify-center items-center h-screen">
           <Loader color="green" size={100} />
         </div>
       )}
 
-      {status === "success" && (
+      {isSuccess && (
         <div>
           <div className="flex flex-col">
             <div className="py-2 px-6 flex flex-row items-center justify-between bg-gray-200 dark:bg-[#0A090C] border-b-[1px]">

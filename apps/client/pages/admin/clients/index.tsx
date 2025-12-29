@@ -2,13 +2,14 @@ import { getCookie } from "cookies-next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
-  useFilters,
-  useGlobalFilter,
-  usePagination,
-  useTable,
-} from "react-table";
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 // import ClientNotesModal from "../../components/ClientNotesModal";
 // import UpdateClientModal from "../../components/UpdateClientModal";
 
@@ -22,134 +23,98 @@ const fetchAllClients = async () => {
   return res.json();
 };
 
-function DefaultColumnFilter({ column: { filterValue, setFilter } }: any) {
+function DefaultColumnFilter({ column }: any) {
   return (
     <input
       className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
       type="text"
-      value={filterValue || ""}
+      value={column.getFilterValue() || ""}
       onChange={(e) => {
-        setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+        column.setFilterValue(e.target.value || undefined);
       }}
       placeholder="Type to filter"
     />
   );
 }
 function Table({ columns, data }: any) {
-  const filterTypes = React.useMemo(
-    () => ({
-      // Add a new fuzzyTextFilterFn filter type.
-      // fuzzyText: fuzzyTextFilterFn,
-      // Or, override the default text filter to use
-      // "startWith"
-      text: (rows: any, id: any, filterValue: any) =>
-        rows.filter((row: any) => {
-          const rowValue = row.values[id];
-          return rowValue !== undefined
-            ? String(rowValue)
-                .toLowerCase()
-                .startsWith(String(filterValue).toLowerCase())
-            : true;
-        }),
-    }),
-    []
-  );
-
-  const defaultColumn = React.useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: DefaultColumnFilter,
-    }),
-    []
-  );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    //@ts-expect-error
-    page,
-    prepareRow,
-    //@ts-expect-error
-    canPreviousPage,
-    //@ts-expect-error
-    canNextPage,
-    //@ts-expect-error
-    pageCount,
-    //@ts-expect-error
-    gotoPage,
-    //@ts-expect-error
-    nextPage,
-    //@ts-expect-error
-    previousPage,
-    //@ts-expect-error
-    setPageSize,
-    //@ts-expect-error
-    state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns,
-      data,
-      //@ts-expect-error
-      defaultColumn, // Be sure to pass the defaultColumn option
-      filterTypes,
-      initialState: {
-        //@ts-expect-error
-        pageIndex: 0,
+  const [columnFilters, setColumnFilters] = React.useState([]);
+  const table = useReactTable({
+    data,
+    columns,
+    state: { columnFilters },
+    onColumnFiltersChange: setColumnFilters,
+    filterFns: {
+      startsWith: (row, columnId, value) => {
+        const rowValue = row.getValue(columnId);
+        return rowValue !== undefined
+          ? String(rowValue)
+              .toLowerCase()
+              .startsWith(String(value).toLowerCase())
+          : true;
       },
     },
-    useFilters, // useFilters!
-    useGlobalFilter,
-    usePagination
-  );
+    defaultColumn: {
+      filterFn: "startsWith",
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: { pageIndex: 0, pageSize: 10 },
+    },
+  });
 
   return (
     <div className="overflow-x-auto md:-mx-6 lg:-mx-8">
       <div className="py-2 align-middle inline-block min-w-full md:px-6 lg:px-8">
         <div className="shadow overflow-hidden border-b border-gray-200 md:rounded-lg">
-          <table
-            {...getTableProps()}
-            className="min-w-full divide-y divide-gray-200"
-          >
+          <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
-              {headerGroups.map((headerGroup: any) => (
-                <tr
-                  {...headerGroup.getHeaderGroupProps()}
-                  key={headerGroup.headers.map((header: any) => header.id)}
-                >
-                  {headerGroup.headers.map((column: any) =>
-                    column.hideHeader === false ? null : (
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    const hideHeader = header.column.columnDef.hideHeader === false;
+                    if (hideHeader) {
+                      return null;
+                    }
+                    return (
                       <th
-                        {...column.getHeaderProps()}
+                        key={header.id}
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
-                        {column.render("Header")}
-                        {/* Render the columns filter UI */}
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         <div>
-                          {column.canFilter ? column.render("Filter") : null}
+                          {header.column.getCanFilter() ? (
+                            <DefaultColumnFilter column={header.column} />
+                          ) : null}
                         </div>
                       </th>
-                    )
-                  )}
+                    );
+                  })}
                 </tr>
               ))}
             </thead>
-            <tbody {...getTableBodyProps()}>
-              {page.map((row: any, i: any) => {
-                prepareRow(row);
-                return (
-                  <tr {...row.getRowProps()} className="bg-white">
-                    {row.cells.map((cell: any) => (
-                      <td
-                        className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                        {...cell.getCellProps()}
-                      >
-                        {cell.render("Cell")}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="bg-white">
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
 
@@ -167,9 +132,9 @@ function Table({ columns, data }: any) {
                     id="location"
                     name="location"
                     className="block w-full pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                    value={pageSize}
+                    value={table.getState().pagination.pageSize}
                     onChange={(e) => {
-                      setPageSize(Number(e.target.value));
+                      table.setPageSize(Number(e.target.value));
                     }}
                   >
                     {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -184,16 +149,16 @@ function Table({ columns, data }: any) {
                 <button
                   className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                   type="button"
-                  onClick={() => previousPage()}
-                  disabled={!canPreviousPage}
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
                 >
                   Previous
                 </button>
                 <button
                   className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                   type="button"
-                  onClick={() => nextPage()}
-                  disabled={!canNextPage}
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
                 >
                   Next
                 </button>
@@ -207,10 +172,10 @@ function Table({ columns, data }: any) {
 }
 
 export default function Clients() {
-  const { data, status, refetch } = useQuery(
-    "fetchAllClients",
-    fetchAllClients
-  );
+  const { data, isLoading, isError, isSuccess, refetch } = useQuery({
+    queryKey: ["fetchAllClients"],
+    queryFn: fetchAllClients,
+  });
 
   const router = useRouter();
 
@@ -230,20 +195,19 @@ export default function Clients() {
   const columns = React.useMemo(
     () => [
       {
-        Header: "Client Name",
-        accessor: "name",
-        width: 10,
+        header: "Client Name",
+        accessorKey: "name",
         id: "client_name",
       },
       {
-        Header: "Contact Name",
-        accessor: "contactName",
+        header: "Contact Name",
+        accessorKey: "contactName",
         id: "contactName",
       },
       {
-        Header: "",
+        header: "",
         id: "actions",
-        Cell: ({ row, value }: any) => {
+        cell: ({ row }: any) => {
           return (
             <div className="space-x-4 flex flex-row">
               {/* <UpdateClientModal client={row.original} />
@@ -260,7 +224,7 @@ export default function Clients() {
         },
       },
     ],
-    []
+    [deleteClient]
   );
 
   return (
@@ -310,13 +274,13 @@ export default function Clients() {
               </div>
             </div>
             <div className="py-4">
-              {status === "loading" && (
+              {isLoading && (
                 <div className="min-h-screen flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">
                   <h2> Loading data ... </h2>
                 </div>
               )}
 
-              {status === "error" && (
+              {isError && (
                 <div className="min-h-screen flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">
                   <h2 className="text-2xl font-bold">
                     {" "}
@@ -325,7 +289,7 @@ export default function Clients() {
                 </div>
               )}
 
-              {status === "success" && (
+              {isSuccess && (
                 <div>
                   <div className="hidden sm:block">
                     <Table columns={columns} data={data.clients} />

@@ -230,7 +230,7 @@ const start = async () => {
           distinctId: "uuid",
         });
 
-        client.shutdownAsync();
+        client.shutdown();
         console.info(`Server listening on ${address}`);
       }
     );

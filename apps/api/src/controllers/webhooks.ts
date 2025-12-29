@@ -55,7 +55,7 @@ export function webhookRoutes(fastify: FastifyInstance) {
         distinctId: "uuid",
       });
 
-      client.shutdownAsync();
+      client.shutdown();
 
       reply.status(200).send({ message: "Hook created!", success: true });
     }

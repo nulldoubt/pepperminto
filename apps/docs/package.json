@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "next",
+    "dev": "next --turbopack",
     "build": "next build",
     "start": "next start"
   },
@@ -12,15 +12,15 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "next": "^14.2.15",
-    "nextra": "^3.0.15",
-    "nextra-theme-docs": "^3.0.15",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-spinners": "^0.13.8"
+    "next": "^16.1.1",
+    "nextra": "^4.6.1",
+    "nextra-theme-docs": "^4.6.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-spinners": "^0.17.0"
   },
   "devDependencies": {
-    "@types/react": "18.2.38",
-    "@types/react-dom": "^18"
+    "@types/react": "19.2.7",
+    "@types/react-dom": "^19.2.3"
   }
 }

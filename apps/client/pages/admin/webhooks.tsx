@@ -3,7 +3,7 @@ import { hasAccess } from "@/shadcn/lib/hasAccess";
 import { Switch } from "@headlessui/react";
 import { getCookie } from "cookies-next";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 async function getHooks() {
   const res = await fetch(`/api/v1/webhooks/all`, {
@@ -31,7 +31,10 @@ export default function Notifications() {
   const [secret, setSecret] = useState();
   const [name, setName] = useState("");
 
-  const { data, status, error, refetch } = useQuery("gethooks", getHooks);
+  const { data, isSuccess, refetch } = useQuery({
+    queryKey: ["gethooks"],
+    queryFn: getHooks,
+  });
 
   async function addHook() {
     await fetch(`/api/v1/webhook/create`, {
@@ -95,7 +98,7 @@ export default function Notifications() {
             <div className="py-6">
               <div className="mt-4">
                 <div className={show === "main" ? "" : "hidden"}>
-                  {status === "success" && (
+                  {isSuccess && (
                      <>
                      <div className="px-4 sm:px-6 md:px-0">
                      <div className="sm:flex sm:items-center mt-4">

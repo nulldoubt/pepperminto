@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 import { LRUCache } from "lru-cache";
-import { generators } from "openid-client";
+import * as oidcClient from "openid-client";
 import { AuthorizationCode } from "simple-oauth2";
 import { getOAuthProvider, getOidcConfig } from "../lib/auth";
 import { track } from "../lib/hog";
@@ -520,34 +520,30 @@ export function authRoutes(fastify: FastifyInstance) {
               .send({ error: "OIDC configuration not found" });
           }
 
-          const oidcClient = await getOidcClient(config);
+          const oidcConfig = await getOidcClient(config);
 
-          // Generate codeVerifier and codeChallenge
-          const codeVerifier = generators.codeVerifier();
-          const codeChallenge = generators.codeChallenge(codeVerifier);
+          const codeVerifier = oidcClient.randomPKCECodeVerifier();
+          const codeChallenge =
+            await oidcClient.calculatePKCECodeChallenge(codeVerifier);
+          const state = oidcClient.randomState();
 
-          // Generate a random state parameter
-          const state = generators.state();
-
-          // Store codeVerifier in cache with s
           cache.set(state, {
             codeVerifier: codeVerifier,
           });
 
-          // Generate authorization URL
-          const url = oidcClient.authorizationUrl({
+          const url = oidcClient.buildAuthorizationUrl(oidcConfig, {
             scope: "openid email profile",
             response_type: "code",
             redirect_uri: config.redirectUri,
             code_challenge: codeChallenge,
-            code_challenge_method: "S256", // Use 'plain' if 'S256' is not supported
+            code_challenge_method: "S256",
             state: state,
           });
 
           reply.send({
             type: "oidc",
             success: true,
-            url: url,
+            url: url.toString(),
           });
 
           break;
@@ -606,28 +602,24 @@ export function authRoutes(fastify: FastifyInstance) {
       try {
         const oidc = await getOidcConfig();
 
-        const config = await getOidcClient(oidc);
-        if (!config) {
+        const oidcConfig = await getOidcClient(oidc);
+        if (!oidcConfig) {
           return reply
             .code(500)
             .send({ error: "OIDC configuration not properly set" });
         }
 
-        const oidcClient = await getOidcClient(config);
+        const protocol =
+          request.protocol ||
+          (request.headers["x-forwarded-proto"] as string) ||
+          "http";
+        const host = request.headers.host;
+        const currentUrl = new URL(request.url, `${protocol}://${host}`);
 
-        // Parse the callback parameters
-        const params = oidcClient.callbackParams(request.raw);
-
-        if (params.iss === "undefined") {
-          // Remove the trailing part and ensure a trailing slash
-          params.iss = oidc.issuer.replace(
-            /\/\.well-known\/openid-configuration$/,
-            "/"
-          );
+        const state = currentUrl.searchParams.get("state");
+        if (!state) {
+          return reply.status(400).send("Missing state");
         }
-
-        // Retrieve the state parameter from the callback
-        const state = params.state;
 
         const sessionData: any = cache.get(state);
 
@@ -642,25 +634,39 @@ export function authRoutes(fastify: FastifyInstance) {
           return reply.status(400).send("Invalid or expired session");
         }
 
-        let tokens = await oidcClient.callback(
-          (
-            await oidc
-          ).redirectUri,
-          params,
+        let tokens = await oidcClient.authorizationCodeGrant(
+          oidcConfig,
+          currentUrl,
           {
-            code_verifier: codeVerifier,
-            state: state,
+            pkceCodeVerifier: codeVerifier,
+            expectedState: state,
           }
         );
 
         // Clean up: Remove the codeVerifier from the cache
         cache.delete(state);
 
+        if (!tokens.access_token) {
+          return reply.status(400).send("Missing access token");
+        }
+
         // Retrieve user information
-        const userInfo = await oidcClient.userinfo(tokens.access_token);
+        const userInfo = await oidcClient.fetchUserInfo(
+          oidcConfig,
+          tokens.access_token,
+          oidcClient.skipSubjectCheck
+        );
+
+        const userEmail = userInfo.email;
+        if (!userEmail) {
+          return reply.status(400).send({
+            success: false,
+            error: "OIDC user info missing email",
+          });
+        }
 
         let user = await prisma.user.findUnique({
-          where: { email: userInfo.email },
+          where: { email: userEmail },
         });
 
         await tracking("user_logged_in_oidc", {});
@@ -669,7 +675,7 @@ export function authRoutes(fastify: FastifyInstance) {
           // Create a new basic user
           user = await prisma.user.create({
             data: {
-              email: userInfo.email,
+              email: userEmail,
               password: await bcrypt.hash(generateRandomPassword(12), 10), // Set a random password of length 12
               name: userInfo.name || "New User", // Use the name from userInfo or a default
               isAdmin: false, // Set isAdmin to false for basic users

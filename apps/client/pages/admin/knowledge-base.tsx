@@ -1,6 +1,6 @@
 import { getCookie } from "cookies-next";
 import { useMemo, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 async function getArticles() {
   const res = await fetch(`/api/v1/knowledge-base/all`, {
@@ -19,7 +19,10 @@ function formatTags(tags: string[] | null | undefined) {
 }
 
 export default function KnowledgeBaseAdmin() {
-  const { data, refetch } = useQuery("kb-admin", getArticles);
+  const { data, refetch } = useQuery({
+    queryKey: ["kb-admin"],
+    queryFn: getArticles,
+  });
   const [mode, setMode] = useState<"list" | "edit">("list");
   const [activeId, setActiveId] = useState<string | null>(null);
 

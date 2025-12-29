@@ -105,7 +105,7 @@ export function userRoutes(fastify: FastifyInstance) {
           distinctId: "uuid",
         });
 
-        client.shutdownAsync();
+        client.shutdown();
 
         reply.send({
           success: true,

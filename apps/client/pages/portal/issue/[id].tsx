@@ -10,7 +10,7 @@ import {
 import moment from "moment";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { getCookie } from "cookies-next";
 import useTranslation from "next-translate/useTranslation";
@@ -37,7 +37,10 @@ export default function Ticket() {
     return res.json();
   };
 
-  const { data, status, refetch } = useQuery("fetchTickets", fetchTicketById);
+  const { data, isLoading, isError, isSuccess, refetch } = useQuery({
+    queryKey: ["fetchTickets", router.query.id],
+    queryFn: fetchTicketById,
+  });
 
   useEffect(() => {
     refetch();
@@ -93,21 +96,21 @@ export default function Ticket() {
 
   return (
     <div>
-      {status === "loading" && (
+      {isLoading && (
         <div className="min-h-screen flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">
           <h2> Loading data ... </h2>
           {/* <Spin /> */}
         </div>
       )}
 
-      {status === "error" && (
+      {isError && (
         <div className="min-h-screen flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold"> Error fetching data ... </h2>
           {/* <img src={server} className="h-96 w-96" alt="error" /> */}
         </div>
       )}
 
-      {status === "success" && (
+      {isSuccess && (
         <main className="flex-1 min-h-[90vh] py-8">
           <div className="mx-auto max-w-6xl w-full px-4 sm:px-6 lg:px-8 flex flex-col xl:flex-row justify-center">
             <div className="xl:border-r xl:border-gray-200 xl:pr-8 xl:w-2/3">

@@ -55,7 +55,7 @@ export default function NewLayout({ children }: any) {
 
   const navigation = [
     {
-      name: t("sl_dashboard"),
+      name: "Dashboard",
       href: `/${locale}/`,
       icon: Building,
       current: location.pathname === "/" ? true : false,

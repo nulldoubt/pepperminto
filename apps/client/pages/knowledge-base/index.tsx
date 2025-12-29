@@ -10,7 +10,7 @@ import {
 import { getCookie } from "cookies-next";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useUser } from "../../store/session";
 
 function groupArticlesByDate(articles) {
@@ -77,7 +77,10 @@ export default function KnowledgeBaseIndex() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const token = getCookie("session");
-  const { data, status } = useQuery("kbArticles", () => fetchArticles(token));
+  const { data, isLoading } = useQuery({
+    queryKey: ["kbArticles"],
+    queryFn: () => fetchArticles(token),
+  });
 
   const router = useRouter();
 
@@ -156,7 +159,7 @@ export default function KnowledgeBaseIndex() {
         </div>
       </div>
       <div className="mt-8 w-full flex justify-center">
-        {status === "loading" && <p>Loading...</p>}
+        {isLoading && <p>Loading...</p>}
         {data && data.articles && data.articles.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-gray-500">

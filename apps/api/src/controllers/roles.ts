@@ -62,7 +62,7 @@ export function roleRoutes(fastify: FastifyInstance) {
         event: "role_created",
         distinctId: "uuid",
       });
-      client.shutdownAsync();
+      client.shutdown();
 
       reply.status(200).send({ message: "Role created!", success: true });
     }

@@ -63,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         initial: "c",
       },
       {
-        title: t("sl_dashboard"),
+        title: "Dashboard",
         url: `/${locale}/`,
         icon: Building,
         isActive: location.pathname === "/" ? true : false,

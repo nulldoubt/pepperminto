@@ -13,7 +13,7 @@ async function tracking(event: string, properties: any) {
     distinctId: "uuid",
   });
 
-  client.shutdownAsync();
+  client.shutdown();
 }
 
 export function emailQueueRoutes(fastify: FastifyInstance) {

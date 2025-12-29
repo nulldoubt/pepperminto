@@ -1,11 +1,12 @@
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
-  useTable,
-  useFilters,
-  useGlobalFilter,
-  usePagination,
-} from "react-table";
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import Link from "next/link";
 import Loader from "react-spinners/ClipLoader";
 import { useRouter } from "next/router";
@@ -13,14 +14,14 @@ import { useRouter } from "next/router";
 // import MarkdownPreview from "../MarkdownPreview";
 import TicketsMobileList from "../../components/TicketsMobileList";
 
-function DefaultColumnFilter({ column: { filterValue, setFilter } }) {
+function DefaultColumnFilter({ column }) {
   return (
     <input
       className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
       type="text"
-      value={filterValue || ""}
+      value={column.getFilterValue() || ""}
       onChange={(e) => {
-        setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+        column.setFilterValue(e.target.value || undefined);
       }}
       placeholder="Type to filter"
     />
@@ -28,108 +29,84 @@ function DefaultColumnFilter({ column: { filterValue, setFilter } }) {
 }
 
 function Table({ columns, data }) {
-  const filterTypes = React.useMemo(
-    () => ({
-      // Add a new fuzzyTextFilterFn filter type.
-      // fuzzyText: fuzzyTextFilterFn,
-      // Or, override the default text filter to use
-      // "startWith"
-      text: (rows, id, filterValue) =>
-        rows.filter((row) => {
-          const rowValue = row.values[id];
-          return rowValue !== undefined
-            ? String(rowValue)
-                .toLowerCase()
-                .startsWith(String(filterValue).toLowerCase())
-            : true;
-        }),
-    }),
-    []
-  );
-
-  const defaultColumn = React.useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: DefaultColumnFilter,
-    }),
-    []
-  );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    canPreviousPage,
-    canNextPage,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns,
-      data,
-      defaultColumn, // Be sure to pass the defaultColumn option
-      filterTypes,
-      initialState: {
-        pageIndex: 0,
+  const [columnFilters, setColumnFilters] = React.useState([]);
+  const table = useReactTable({
+    data,
+    columns,
+    state: { columnFilters },
+    onColumnFiltersChange: setColumnFilters,
+    filterFns: {
+      startsWith: (row, columnId, value) => {
+        const rowValue = row.getValue(columnId);
+        return rowValue !== undefined
+          ? String(rowValue)
+              .toLowerCase()
+              .startsWith(String(value).toLowerCase())
+          : true;
       },
     },
-    useFilters, // useFilters!
-    useGlobalFilter,
-    usePagination
-  );
+    defaultColumn: {
+      filterFn: "startsWith",
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: { pageIndex: 0, pageSize: 10 },
+    },
+  });
 
   return (
     <div className="overflow-x-auto md:-mx-6 lg:-mx-8">
       <div className="py-2 align-middle inline-block min-w-full md:px-6 lg:px-8">
         <div className="shadow overflow-hidden border-b border-gray-200 md:rounded-lg">
-          <table
-            {...getTableProps()}
-            className="min-w-full divide-y divide-gray-200"
-          >
+          <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
-              {headerGroups.map((headerGroup) => (
-                <tr
-                  {...headerGroup.getHeaderGroupProps()}
-                  key={headerGroup.headers.map((header) => header.id)}
-                >
-                  {headerGroup.headers.map((column) =>
-                    column.hideHeader === false ? null : (
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    const hideHeader = header.column.columnDef.hideHeader === false;
+                    if (hideHeader) {
+                      return null;
+                    }
+                    return (
                       <th
-                        {...column.getHeaderProps()}
+                        key={header.id}
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
-                        {column.render("Header")}
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         <div>
-                          {column.canFilter ? column.render("Filter") : null}
+                          {header.column.getCanFilter() ? (
+                            <DefaultColumnFilter column={header.column} />
+                          ) : null}
                         </div>
                       </th>
-                    )
-                  )}
+                    );
+                  })}
                 </tr>
               ))}
             </thead>
-            <tbody {...getTableBodyProps()}>
-              {page.map((row, i) => {
-                prepareRow(row);
-                return (
-                  <tr {...row.getRowProps()} className="bg-white">
-                    {row.cells.map((cell) => (
-                      <td
-                        className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                        {...cell.getCellProps()}
-                      >
-                        {cell.render("Cell")}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="bg-white">
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
 
@@ -149,11 +126,11 @@ function Table({ columns, data }) {
                   id="location"
                   name="location"
                   className="block w-full pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(Number(e.target.value));
-                  }}
-                >
+                    value={table.getState().pagination.pageSize}
+                    onChange={(e) => {
+                      table.setPageSize(Number(e.target.value));
+                    }}
+                  >
                   {[10, 20, 30, 40, 50].map((pageSize) => (
                     <option key={pageSize} value={pageSize}>
                       {pageSize}
@@ -166,19 +143,19 @@ function Table({ columns, data }) {
               <button
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                 type="button"
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-              >
-                Previous
-              </button>
-              <button
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                type="button"
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-              >
-                Next
-              </button>
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  Previous
+                </button>
+                <button
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  type="button"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  Next
+                </button>
             </div>
           </nav>
         </div>
@@ -196,7 +173,10 @@ export default function AssignedTickets() {
     return res.json();
   }
 
-  const { data, status, error } = useQuery("userTickets", getUserTickets);
+  const { data, isSuccess } = useQuery({
+    queryKey: ["userTickets"],
+    queryFn: getUserTickets,
+  });
 
   const high = "bg-red-100 text-red-800";
   const low = "bg-blue-100 text-blue-800";
@@ -204,74 +184,67 @@ export default function AssignedTickets() {
 
   const columns = React.useMemo(() => [
     {
-      Header: "No.",
-      accessor: "Number",
-      width: 10,
+      header: "No.",
+      accessorKey: "Number",
       id: "number",
     },
     {
-      Header: "Name",
-      accessor: "name",
+      header: "Name",
+      accessorKey: "name",
       id: "name",
     },
     {
-      Header: "Client",
-      accessor: "client.name",
+      header: "Client",
       id: "client_name",
+      accessorFn: (row) => row?.client?.name,
     },
     {
-      Header: "Priority",
-      accessor: "priority",
+      header: "Priority",
+      accessorKey: "priority",
       id: "priority",
-      Cell: ({ row, value }) => {
-        let p = value;
+      cell: ({ getValue }) => {
+        const value = getValue();
         let badge;
 
-        if (p === "Low") {
+        if (value === "Low") {
           badge = low;
         }
-        if (p === "Normal") {
+        if (value === "Normal") {
           badge = normal;
         }
-        if (p === "High") {
+        if (value === "High") {
           badge = high;
         }
 
         return (
-          <>
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge}`}
-            >
-              {value}
-            </span>
-          </>
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge}`}
+          >
+            {value}
+          </span>
         );
       },
     },
     {
-      Header: "Title",
-      accessor: "title",
+      header: "Title",
+      accessorKey: "title",
       id: "Title",
-      Cell: ({ value }) => {
-        return <div className="truncate">{value}</div>;
+      cell: ({ getValue }) => {
+        return <div className="truncate">{getValue()}</div>;
       },
     },
     {
-      Header: "",
+      header: "",
       id: "actions",
-      Cell: ({ row, value }) => {
-        return (
-          <>
-            <Link href={`/tickets/${row.original.id}`}>View</Link>
-          </>
-        );
+      cell: ({ row }) => {
+        return <Link href={`/tickets/${row.original.id}`}>View</Link>;
       },
     },
   ]);
 
   return (
     <>
-      {status === "success" && (
+      {isSuccess && (
         <>
           {data.tickets && (
             <>

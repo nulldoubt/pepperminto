@@ -6,8 +6,15 @@ import { PostHogProvider } from "posthog-js/react";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const UserContext = createContext();
+const posthogKey = process.env.NEXT_PUBLIC_POSTHOG;
+const enablePosthog =
+  posthogKey &&
+  process.env.NEXT_PUBLIC_ENVIRONMENT === "production" &&
+  process.env.NEXT_PUBLIC_TELEMETRY === "1";
 
-posthog.init(process.env.NEXT_PUBLIC_POSTHOG);
+if (enablePosthog) {
+  posthog.init(posthogKey);
+}
 
 export const SessionProvider = ({ children }) => {
   const router = useRouter();
@@ -47,8 +54,7 @@ export const SessionProvider = ({ children }) => {
     fetchUserProfile();
   }, [router]);
 
-  return process.env.NEXT_PUBLIC_ENVIRONMENT === "production" &&
-    process.env.NEXT_PUBLIC_TELEMETRY === "1" ? (
+  return enablePosthog ? (
     <UserContext.Provider value={{ user, setUser, loading, fetchUserProfile }}>
       <PostHogProvider client={posthog}>{children}</PostHogProvider>
     </UserContext.Provider>

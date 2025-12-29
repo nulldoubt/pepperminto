@@ -24,7 +24,7 @@ import useTranslation from "next-translate/useTranslation";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Frame from "react-frame-component";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 
 import { toast } from "@/shadcn/hooks/use-toast";
@@ -113,7 +113,9 @@ export default function Ticket() {
     return res.json();
   };
 
-  const { data, status, refetch } = useQuery("fetchTickets", fetchTicketById, {
+  const { data, isLoading, isError, isSuccess, refetch } = useQuery({
+    queryKey: ["fetchTickets", router.query.id],
+    queryFn: fetchTicketById,
     enabled: false,
   });
 
@@ -601,7 +603,7 @@ export default function Ticket() {
 
   // Loads the previously stored editor contents.
   useEffect(() => {
-    if (status === "success" && data && data.ticket) {
+    if (isSuccess && data && data.ticket) {
       loadFromStorage().then((content) => {
         if (typeof content === "object") {
           setInitialContent(content);
@@ -724,20 +726,20 @@ export default function Ticket() {
 
   return (
     <div>
-      {status === "loading" && (
+      {isLoading && (
         <div className="min-h-screen flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">
           <h2> Loading data ... </h2>
           {/* <Spin /> */}
         </div>
       )}
 
-      {status === "error" && (
+      {isError && (
         <div className="min-h-screen flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold"> Error fetching data ... </h2>
         </div>
       )}
 
-      {status === "success" && (
+      {isSuccess && (
         <ContextMenu>
           <ContextMenuTrigger>
             <main className="flex-1 min-h-[90vh] py-8">

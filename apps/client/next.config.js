@@ -1,19 +1,12 @@
 // next.config.js
 const withPlugins = require('next-compose-plugins');
 const removeImports = require('next-remove-imports')();
-const nextTranslate = require('next-translate');
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: false,
-});
+const nextTranslate = require('next-translate-plugin');
 
 module.exports = withPlugins(
-  [removeImports, nextTranslate, withPWA],
+  [removeImports, nextTranslate],
   {
     reactStrictMode: false,
-    swcMinify: true,
     output: 'standalone',
 
     async rewrites() {
