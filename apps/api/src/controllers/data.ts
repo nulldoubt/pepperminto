@@ -8,6 +8,17 @@ export function dataRoutes(fastify: FastifyInstance) {
     "/api/v1/data/tickets/all",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              count: { type: "number" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const result = await prisma.ticket.count({
@@ -23,6 +34,17 @@ export function dataRoutes(fastify: FastifyInstance) {
     "/api/v1/data/tickets/completed",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              count: { type: "number" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const result = await prisma.ticket.count({
@@ -38,6 +60,17 @@ export function dataRoutes(fastify: FastifyInstance) {
     "/api/v1/data/tickets/open",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              count: { type: "number" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const result = await prisma.ticket.count({
@@ -53,6 +86,17 @@ export function dataRoutes(fastify: FastifyInstance) {
     "/api/v1/data/tickets/unassigned",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              count: { type: "number" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const result = await prisma.ticket.count({
@@ -66,6 +110,19 @@ export function dataRoutes(fastify: FastifyInstance) {
   // Get all logs
   fastify.get(
     "/api/v1/data/logs",
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              logs: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const logs = await import("fs/promises").then((fs) =>
         fs.readFile("logs.log", "utf-8")

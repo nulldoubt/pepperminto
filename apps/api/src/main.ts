@@ -1,4 +1,6 @@
 import cors from "@fastify/cors";
+import swagger from "@fastify/swagger";
+import swaggerUI from "@fastify/swagger-ui";
 import "dotenv/config";
 import Fastify, { FastifyInstance } from "fastify";
 import multer from "fastify-multer";
@@ -25,58 +27,153 @@ const server: FastifyInstance = Fastify({
   disableRequestLogging: true,
   trustProxy: true,
 });
-server.register(cors, {
-  origin: "*",
 
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-});
-
-server.register(multer.contentParser);
-
-registerRoutes(server);
-
-server.get(
+const publicRoutes = new Set([
   "/",
-  {
-    schema: {
-      tags: ["health"], // This groups the endpoint under a category
-      description: "Health check endpoint",
-      response: {
-        200: {
-          type: "object",
-          properties: {
-            healthy: { type: "boolean" },
+  "/api/v1/auth/login",
+  "/api/v1/ticket/public/create",
+  "/docs",
+  "/docs/json",
+  "/docs/yaml",
+]);
+
+function isPublicRoute(url: string) {
+  return (
+    publicRoutes.has(url) ||
+    url.startsWith("/docs/") ||
+    url.startsWith("/api/v1/knowledge-base/public")
+  );
+}
+
+function inferTag(url: string) {
+  if (url === "/") {
+    return "health";
+  }
+  const parts = url.split("/").filter(Boolean);
+  const resource = parts[2] || "general";
+  const tagMap: Record<string, string> = {
+    auth: "auth",
+    ticket: "tickets",
+    tickets: "tickets",
+    client: "clients",
+    clients: "clients",
+    config: "config",
+    data: "data",
+    notebook: "notebook",
+    queue: "queue",
+    webhooks: "webhooks",
+    storage: "storage",
+    roles: "roles",
+    users: "users",
+    time: "time",
+    "knowledge-base": "knowledge-base",
+  };
+  return tagMap[resource] || "general";
+}
+
+server.register(async (app) => {
+  app.addHook("onRoute", (routeOptions: any) => {
+    const url = routeOptions.url as string;
+    if (!url.startsWith("/api") && url !== "/") {
+      return;
+    }
+    const method = Array.isArray(routeOptions.method)
+      ? routeOptions.method.join(",")
+      : routeOptions.method;
+
+    const schema = routeOptions.schema ?? {};
+    if (!schema.tags) {
+      schema.tags = [inferTag(url)];
+    }
+    if (!schema.summary) {
+      schema.summary = `${method} ${url}`;
+    }
+    if (!schema.security && !isPublicRoute(url)) {
+      schema.security = [{ bearerAuth: [] }];
+    }
+    routeOptions.schema = schema;
+  });
+
+  app.register(cors, {
+    origin: "*",
+
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+  });
+
+  app.register(multer.contentParser);
+
+  registerRoutes(app);
+
+  app.get(
+    "/",
+    {
+      schema: {
+        tags: ["health"], // This groups the endpoint under a category
+        description: "Health check endpoint",
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              healthy: { type: "boolean" },
+            },
           },
         },
       },
     },
-  },
-  async function (request, response) {
-    response.send({ healthy: true });
-  }
-);
+    async function (request, response) {
+      response.send({ healthy: true });
+    }
+  );
 
-// JWT authentication hook
-server.addHook("preHandler", async function (request: any, reply: any) {
-  try {
-    if (request.url === "/api/v1/auth/login" && request.method === "POST") {
-      return true;
+  // JWT authentication hook
+  app.addHook("preHandler", async function (request: any, reply: any) {
+    try {
+      if (isPublicRoute(request.url)) {
+        return true;
+      }
+      const bearer = request.headers.authorization!.split(" ")[1];
+      checkToken(bearer);
+    } catch (err) {
+      reply.status(401).send({
+        message: "Unauthorized",
+        success: false,
+      });
     }
-    if (
-      request.url === "/api/v1/ticket/public/create" &&
-      request.method === "POST"
-    ) {
-      return true;
-    }
-    const bearer = request.headers.authorization!.split(" ")[1];
-    checkToken(bearer);
-  } catch (err) {
-    reply.status(401).send({
-      message: "Unauthorized",
-      success: false,
-    });
-  }
+  });
+
+  app.register(swagger, {
+    openapi: {
+      info: {
+        title: "Peppermint API",
+        description: "Peppermint API documentation",
+        version: "1.0.0",
+      },
+      servers: [
+        {
+          url: process.env.API_BASE_URL || "http://localhost:5003",
+        },
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+          },
+        },
+      },
+    },
+  });
+
+  app.register(swaggerUI, {
+    routePrefix: "/docs",
+    uiConfig: {
+      docExpansion: "list",
+      deepLinking: false,
+    },
+    staticCSP: true,
+  });
 });
 
 const start = async () => {

@@ -28,7 +28,21 @@ export function configRoutes(fastify: FastifyInstance) {
   // Check auth method
   fastify.get(
     "/api/v1/config/authentication/check",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              sso: { type: "boolean" },
+              provider: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const config = await prisma.config.findFirst();
 
@@ -53,7 +67,30 @@ export function configRoutes(fastify: FastifyInstance) {
   // Update OIDC Provider
   fastify.post(
     "/api/v1/config/authentication/oidc/update",
-
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            clientId: { type: "string" },
+            clientSecret: { type: "string" },
+            redirectUri: { type: "string" },
+            issuer: { type: "string" },
+            jwtSecret: { type: "string" },
+          },
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { clientId, clientSecret, redirectUri, issuer, jwtSecret }: any =
         request.body;
@@ -101,7 +138,32 @@ export function configRoutes(fastify: FastifyInstance) {
   // Update Oauth Provider
   fastify.post(
     "/api/v1/config/authentication/oauth/update",
-
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            clientId: { type: "string" },
+            clientSecret: { type: "string" },
+            redirectUri: { type: "string" },
+            tenantId: { type: "string" },
+            issuer: { type: "string" },
+            jwtSecret: { type: "string" },
+          },
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const {
         name,
@@ -163,7 +225,20 @@ export function configRoutes(fastify: FastifyInstance) {
   // Delete auth config
   fastify.delete(
     "/api/v1/config/authentication",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const conf = await prisma.config.findFirst();
 
@@ -191,7 +266,22 @@ export function configRoutes(fastify: FastifyInstance) {
   // Check if Emails are enabled & GET email settings
   fastify.get(
     "/api/v1/config/email",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              active: { type: "boolean" },
+              email: { type: "object", additionalProperties: true },
+              verification: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const bearer = request.headers.authorization!.split(" ")[1];
       // GET EMAIL SETTINGS
@@ -242,7 +332,36 @@ export function configRoutes(fastify: FastifyInstance) {
   // Update Email Provider Settings
   fastify.put(
     "/api/v1/config/email",
-
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            host: { type: "string" },
+            active: { type: "boolean" },
+            port: { type: ["string", "number"] },
+            reply: { type: "string" },
+            username: { type: "string" },
+            password: { type: "string" },
+            serviceType: { type: "string" },
+            clientId: { type: "string" },
+            clientSecret: { type: "string" },
+            redirectUri: { type: "string" },
+          },
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+              authorizeUrl: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const {
         host,
@@ -325,7 +444,27 @@ export function configRoutes(fastify: FastifyInstance) {
   // Google oauth callback
   fastify.get(
     "/api/v1/config/email/oauth/gmail",
-
+    {
+      schema: {
+        querystring: {
+          type: "object",
+          properties: {
+            code: { type: "string" },
+          },
+          required: ["code"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { code }: any = request.query;
 
@@ -376,7 +515,20 @@ export function configRoutes(fastify: FastifyInstance) {
   // Disable/Enable Email
   fastify.delete(
     "/api/v1/config/email",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       await prisma.email.deleteMany({});
 
@@ -392,6 +544,25 @@ export function configRoutes(fastify: FastifyInstance) {
     "/api/v1/config/toggle-roles",
     {
       preHandler: requirePermission(["settings::manage"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            isActive: { type: "boolean" },
+          },
+          required: ["isActive"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { isActive }: any = request.body;

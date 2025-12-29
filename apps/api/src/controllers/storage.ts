@@ -8,7 +8,34 @@ export function objectStoreRoutes(fastify: FastifyInstance) {
   //
   fastify.post(
     "/api/v1/storage/ticket/:id/upload/single",
-    { preHandler: upload.single("file") },
+    {
+      preHandler: upload.single("file"),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        body: {
+          type: "object",
+          properties: {
+            user: { type: "string" },
+          },
+          required: ["user"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
 
     async (request: FastifyRequest, reply: FastifyReply) => {
       console.log(request.file);

@@ -22,6 +22,26 @@ export function notebookRoutes(fastify: FastifyInstance) {
     "/api/v1/notebook/note/create",
     {
       preHandler: requirePermission(["document::create"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            content: { type: "string" },
+            title: { type: "string" },
+          },
+          required: ["content", "title"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              id: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { content, title }: any = request.body;
@@ -48,6 +68,21 @@ export function notebookRoutes(fastify: FastifyInstance) {
     "/api/v1/notebooks/all",
     {
       preHandler: requirePermission(["document::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              notebooks: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);
@@ -65,6 +100,25 @@ export function notebookRoutes(fastify: FastifyInstance) {
     "/api/v1/notebooks/note/:id",
     {
       preHandler: requirePermission(["document::read"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              note: { type: "object", additionalProperties: true },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);
@@ -84,6 +138,24 @@ export function notebookRoutes(fastify: FastifyInstance) {
     "/api/v1/notebooks/note/:id",
     {
       preHandler: requirePermission(["document::delete"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);
@@ -107,6 +179,32 @@ export function notebookRoutes(fastify: FastifyInstance) {
     "/api/v1/notebooks/note/:id/update",
     {
       preHandler: requirePermission(["document::update"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        body: {
+          type: "object",
+          properties: {
+            content: { type: "string" },
+            title: { type: "string" },
+          },
+          required: ["content", "title"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);

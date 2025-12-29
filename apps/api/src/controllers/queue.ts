@@ -20,7 +20,36 @@ export function emailQueueRoutes(fastify: FastifyInstance) {
   // Create a new email queue
   fastify.post(
     "/api/v1/email-queue/create",
-
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            username: { type: "string" },
+            password: { type: "string" },
+            hostname: { type: "string" },
+            tls: { type: ["boolean", "string"] },
+            serviceType: { type: "string" },
+            clientId: { type: "string" },
+            clientSecret: { type: "string" },
+            redirectUri: { type: "string" },
+          },
+          required: ["name", "serviceType"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+              authorizeUrl: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const {
         name,
@@ -92,7 +121,28 @@ export function emailQueueRoutes(fastify: FastifyInstance) {
   // Google oauth callback
   fastify.get(
     "/api/v1/email-queue/oauth/gmail",
-
+    {
+      schema: {
+        querystring: {
+          type: "object",
+          properties: {
+            code: { type: "string" },
+            mailboxId: { type: "string" },
+          },
+          required: ["code", "mailboxId"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { code, mailboxId }: any = request.query;
 
@@ -133,7 +183,23 @@ export function emailQueueRoutes(fastify: FastifyInstance) {
   // Get all email queue's
   fastify.get(
     "/api/v1/email-queues/all",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              queues: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const queues = await prisma.emailQueue.findMany({
         select: {
@@ -160,7 +226,26 @@ export function emailQueueRoutes(fastify: FastifyInstance) {
   // Delete an email queue
   fastify.delete(
     "/api/v1/email-queue/delete",
-
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.body;
 

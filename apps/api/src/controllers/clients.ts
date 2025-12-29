@@ -9,6 +9,27 @@ export function clientRoutes(fastify: FastifyInstance) {
     "/api/v1/client/create",
     {
       preHandler: requirePermission(["client::create"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            email: { type: "string" },
+            number: { type: ["string", "number"] },
+            contactName: { type: "string" },
+          },
+          required: ["name", "email", "number", "contactName"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { name, email, number, contactName }: any = request.body;
@@ -40,6 +61,28 @@ export function clientRoutes(fastify: FastifyInstance) {
     "/api/v1/client/update",
     {
       preHandler: requirePermission(["client::update"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            name: { type: "string" },
+            email: { type: "string" },
+            number: { type: ["string", "number"] },
+            contactName: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { name, email, number, contactName, id }: any = request.body;
@@ -65,6 +108,21 @@ export function clientRoutes(fastify: FastifyInstance) {
     "/api/v1/clients/all",
     {
       preHandler: requirePermission(["client::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              clients: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const clients = await prisma.client.findMany({});
@@ -81,6 +139,24 @@ export function clientRoutes(fastify: FastifyInstance) {
     "/api/v1/clients/:id/delete-client",
     {
       preHandler: requirePermission(["client::delete"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;

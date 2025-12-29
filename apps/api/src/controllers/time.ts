@@ -5,7 +5,29 @@ export function timeTrackingRoutes(fastify: FastifyInstance) {
   // Create a new entry
   fastify.post(
     "/api/v1/time/new",
-
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            time: { type: ["string", "number"] },
+            ticket: { type: "string" },
+            title: { type: "string" },
+            user: { type: "string" },
+          },
+          required: ["time", "ticket", "title", "user"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { time, ticket, title, user }: any = request.body;
 

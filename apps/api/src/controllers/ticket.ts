@@ -34,6 +34,34 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/create",
     {
       preHandler: requirePermission(["issue::create"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            company: { type: ["string", "object"] },
+            detail: { type: ["object", "string", "array"] },
+            title: { type: "string" },
+            priority: { type: "string" },
+            email: { type: "string" },
+            engineer: { type: "object" },
+            type: { type: "string" },
+            createdBy: { type: "object" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              message: { type: "string" },
+              success: { type: "boolean" },
+              id: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const {
@@ -141,6 +169,36 @@ export function ticketRoutes(fastify: FastifyInstance) {
 
   fastify.post(
     "/api/v1/ticket/public/create",
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            company: { type: ["string", "object"] },
+            detail: { type: ["object", "string", "array"] },
+            title: { type: "string" },
+            priority: { type: "string" },
+            email: { type: "string" },
+            engineer: { type: "object" },
+            type: { type: "string" },
+            createdBy: { type: "object" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              message: { type: "string" },
+              success: { type: "boolean" },
+              id: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const {
         name,
@@ -250,6 +308,25 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/:id",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              ticket: { type: "object", additionalProperties: true },
+              sucess: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;
@@ -319,6 +396,21 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/tickets/open",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              sucess: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const tickets = await prisma.ticket.findMany({
@@ -353,6 +445,27 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/tickets/search",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            query: { type: "string" },
+          },
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { query }: any = request.body;
@@ -375,6 +488,23 @@ export function ticketRoutes(fastify: FastifyInstance) {
   // Get all tickets (admin)
   fastify.get(
     "/api/v1/tickets/all",
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              sucess: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const bearer = request.headers.authorization!.split(" ")[1];
       const token = checkToken(bearer);
@@ -409,7 +539,23 @@ export function ticketRoutes(fastify: FastifyInstance) {
   // Get all open tickets for a user
   fastify.get(
     "/api/v1/tickets/user/open",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              sucess: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);
 
@@ -438,7 +584,23 @@ export function ticketRoutes(fastify: FastifyInstance) {
   // Get all closed tickets
   fastify.get(
     "/api/v1/tickets/completed",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              sucess: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const tickets = await prisma.ticket.findMany({
         where: { isComplete: true, hidden: false },
@@ -465,7 +627,23 @@ export function ticketRoutes(fastify: FastifyInstance) {
   // Get all unassigned tickets
   fastify.get(
     "/api/v1/tickets/unassigned",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const tickets = await prisma.ticket.findMany({
         where: {
@@ -487,6 +665,30 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/update",
     {
       preHandler: requirePermission(["issue::update"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            note: { type: ["string", "object"] },
+            detail: { type: ["string", "object"] },
+            title: { type: "string" },
+            priority: { type: "string" },
+            status: { type: ["string", "boolean"] },
+            client: { type: ["string", "object"] },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id, note, detail, title, priority, status, client }: any =
@@ -528,6 +730,25 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/transfer",
     {
       preHandler: requirePermission(["issue::transfer"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            user: { type: "string" },
+            id: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { user, id }: any = request.body;
@@ -574,6 +795,25 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/transfer/client",
     {
       preHandler: requirePermission(["issue::transfer"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            client: { type: "string" },
+            id: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { client, id }: any = request.body;
@@ -650,6 +890,26 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/comment",
     {
       preHandler: requirePermission(["issue::comment"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            text: { type: "string" },
+            id: { type: "string" },
+            public: { type: "boolean" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { text, id, public: public_comment }: any = request.body;
@@ -696,6 +956,24 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/comment/delete",
     {
       preHandler: requirePermission(["issue::comment"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.body;
@@ -717,6 +995,25 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/status/update",
     {
       preHandler: requirePermission(["issue::update"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            status: { type: "boolean" },
+            id: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { status, id }: any = request.body;
@@ -785,6 +1082,25 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/status/hide",
     {
       preHandler: requirePermission(["issue::update"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            hidden: { type: "boolean" },
+            id: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { hidden, id }: any = request.body;
@@ -807,6 +1123,25 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/status/lock",
     {
       preHandler: requirePermission(["issue::update"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            locked: { type: "boolean" },
+            id: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { locked, id }: any = request.body;
@@ -829,6 +1164,24 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/delete",
     {
       preHandler: requirePermission(["issue::delete"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.body;
@@ -846,7 +1199,16 @@ export function ticketRoutes(fastify: FastifyInstance) {
   // Get all tickets that created via imap
   fastify.get(
     "/api/v1/tickets/imap/all",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {}
   );
 
@@ -855,6 +1217,21 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/templates",
     {
       preHandler: requirePermission(["email_template::manage"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              templates: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const templates = await prisma.emailTemplate.findMany({
@@ -878,6 +1255,28 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/template/:id",
     {
       preHandler: requirePermission(["email_template::manage"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              template: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;
@@ -900,6 +1299,31 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/template/:id",
     {
       preHandler: requirePermission(["email_template::manage"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        body: {
+          type: "object",
+          properties: {
+            html: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;
@@ -924,7 +1348,23 @@ export function ticketRoutes(fastify: FastifyInstance) {
   // Get all open tickets for an external user
   fastify.get(
     "/api/v1/tickets/user/open/external",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              sucess: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);
 
@@ -953,7 +1393,23 @@ export function ticketRoutes(fastify: FastifyInstance) {
   // Get all closed tickets for an external user
   fastify.get(
     "/api/v1/tickets/user/closed/external",
-
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              sucess: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);
 
@@ -984,6 +1440,21 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/tickets/user/external",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              tickets: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              sucess: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);
@@ -1015,6 +1486,25 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/subscribe/:id",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;
@@ -1061,6 +1551,25 @@ export function ticketRoutes(fastify: FastifyInstance) {
     "/api/v1/ticket/unsubscribe/:id",
     {
       preHandler: requirePermission(["issue::read"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;

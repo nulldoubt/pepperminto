@@ -10,6 +10,28 @@ export function roleRoutes(fastify: FastifyInstance) {
     "/api/v1/role/create",
     {
       preHandler: requirePermission(["role::create"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            description: { type: "string" },
+            permissions: { type: "array", items: { type: "string" } },
+            isDefault: { type: "boolean" },
+          },
+          required: ["name"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              message: { type: "string" },
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await checkSession(request);
@@ -51,6 +73,22 @@ export function roleRoutes(fastify: FastifyInstance) {
     "/api/v1/roles/all",
     {
       preHandler: requirePermission(["role::read"]),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              roles: {
+                type: "array",
+                items: { type: "object", additionalProperties: true },
+              },
+              success: { type: "boolean" },
+              roles_active: { type: "object", additionalProperties: true },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const roles = await prisma.role.findMany({
@@ -74,6 +112,25 @@ export function roleRoutes(fastify: FastifyInstance) {
     "/api/v1/role/:id",
     {
       preHandler: requirePermission(["role::read"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              role: { type: "object", additionalProperties: true },
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;
@@ -101,6 +158,40 @@ export function roleRoutes(fastify: FastifyInstance) {
     "/api/v1/role/:id/update",
     {
       preHandler: requirePermission(["role::update"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            description: { type: "string" },
+            permissions: { type: "array", items: { type: "string" } },
+            isDefault: { type: "boolean" },
+            users: {
+              anyOf: [
+                { type: "array", items: { type: "string" } },
+                { type: "string" },
+              ],
+            },
+          },
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              role: { type: "object", additionalProperties: true },
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;
@@ -142,6 +233,24 @@ export function roleRoutes(fastify: FastifyInstance) {
     "/api/v1/role/:id/delete",
     {
       preHandler: requirePermission(["role::delete"]),
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.params;
@@ -169,6 +278,26 @@ export function roleRoutes(fastify: FastifyInstance) {
     "/api/v1/role/assign",
     {
       preHandler: requirePermission(["role::update"]),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            userId: { type: "string" },
+            roleId: { type: "string" },
+          },
+          required: ["userId", "roleId"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              user: { type: "object", additionalProperties: true },
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { userId, roleId }: any = request.body;
@@ -204,6 +333,26 @@ export function roleRoutes(fastify: FastifyInstance) {
     "/api/v1/role/remove",
     {
       //   preHandler: requirePermission(['role::remove']),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            userId: { type: "string" },
+            roleId: { type: "string" },
+          },
+          required: ["userId", "roleId"],
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              user: { type: "object", additionalProperties: true },
+              success: { type: "boolean" },
+            },
+            additionalProperties: true,
+          },
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { userId, roleId }: any = request.body;
