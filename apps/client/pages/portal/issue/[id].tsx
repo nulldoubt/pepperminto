@@ -1,15 +1,13 @@
-import { Listbox, Transition } from "@headlessui/react";
 import {
   CalendarIcon,
   ChatBubbleLeftEllipsisIcon,
   CheckCircleIcon,
-  CheckIcon,
   LockClosedIcon,
   LockOpenIcon,
 } from "@heroicons/react/20/solid";
 import moment from "moment";
 import { useRouter } from "next/router";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { getCookie } from "cookies-next";
@@ -18,6 +16,13 @@ import Frame from "react-frame-component";
 
 import { useUser } from "../../../store/session";
 import { classNames } from "@/shadcn/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 
 export default function Ticket() {
   const router = useRouter();
@@ -47,7 +52,7 @@ export default function Ticket() {
   }, [router]);
 
   const [users, setUsers] = useState<any>();
-  const [n, setN] = useState<any>();
+  const [selectedUserId, setSelectedUserId] = useState("");
 
   const [issue, setIssue] = useState<any>();
   const [comment, setComment] = useState<any>();
@@ -181,79 +186,32 @@ export default function Ticket() {
                     </div>
 
                     {users && (
-                      <Listbox value={n} onChange={setN}>
-                        {({ open }) => (
-                          <>
-                            <div className="relative">
-                              <Listbox.Button className="bg-white z-50 relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 px-4 py-1.5 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                <span className="block min-w-[75px] text-xs">
-                                  {data.ticket.assignedTo
-                                    ? data.ticket.assignedTo.name
-                                    : n
-                                    ? n.name
-                                    : t("select_new_user")}
-                                </span>
-                              </Listbox.Button>
-
-                              <Transition
-                                show={open}
-                                as={Fragment}
-                                leave="transition ease-in duration-100"
-                                leaveFrom="opacity-100"
-                                leaveTo="opacity-0"
-                              >
-                                <Listbox.Options className="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                  {users.map((user: any) => (
-                                    <Listbox.Option
-                                      key={user.id}
-                                      className={({ active }) =>
-                                        classNames(
-                                          active
-                                            ? "text-white bg-indigo-600"
-                                            : "text-gray-900",
-                                          "cursor-default select-none relative py-2 pl-3 pr-9"
-                                        )
-                                      }
-                                      value={user}
-                                    >
-                                      {({ n, active }: any) => (
-                                        <>
-                                          <span
-                                            className={classNames(
-                                              n
-                                                ? "font-semibold"
-                                                : "font-normal",
-                                              "block truncate"
-                                            )}
-                                          >
-                                            {user.name}
-                                          </span>
-
-                                          {n ? (
-                                            <span
-                                              className={classNames(
-                                                active
-                                                  ? "text-white"
-                                                  : "text-indigo-600",
-                                                "absolute inset-y-0 right-0 flex items-center pr-4"
-                                              )}
-                                            >
-                                              <CheckIcon
-                                                className="h-5 w-5"
-                                                aria-hidden="true"
-                                              />
-                                            </span>
-                                          ) : null}
-                                        </>
-                                      )}
-                                    </Listbox.Option>
-                                  ))}
-                                </Listbox.Options>
-                              </Transition>
-                            </div>
-                          </>
-                        )}
-                      </Listbox>
+                      <Select
+                        value={
+                          selectedUserId ||
+                          data.ticket.assignedTo?.id ||
+                          "unassigned"
+                        }
+                        onValueChange={(value) =>
+                          setSelectedUserId(
+                            value === "unassigned" ? "" : value
+                          )
+                        }
+                      >
+                        <SelectTrigger className="bg-white text-xs">
+                          <SelectValue placeholder={t("select_new_user")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unassigned">
+                            {t("select_new_user")}
+                          </SelectItem>
+                          {users.map((user: any) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
                   </div>
                   <div className="py-3 border-b border-gray-200">

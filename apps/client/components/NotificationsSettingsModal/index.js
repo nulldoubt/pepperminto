@@ -1,14 +1,10 @@
 import React, { useState, useEffect, Fragment, useRef } from "react";
-import { Dialog, DialogBackdrop, Transition, Listbox } from "@headlessui/react";
+import { Dialog, DialogBackdrop, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/solid";
 import useTranslation from "next-translate/useTranslation";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import { Label } from "@/shadcn/ui/label";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function NotificationsSettingsModal() {
   const { t, lang } = useTranslation("peppermint");

@@ -1,18 +1,20 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Dialog, DialogBackdrop, Transition, Listbox } from "@headlessui/react";
+import { Dialog, DialogBackdrop, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/24/outline";
-import { CheckIcon, SelectorIcon } from "@heroicons/react/20/solid";
 import { useRouter } from "next/router";
 import { Button } from "@/shadcn/ui/button";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 
 export default function LinkTicket({ id }) {
   const [open, setOpen] = useState(false);
   const [tickets, setTickets] = useState();
-  const [n, setN] = useState();
+  const [selectedTicketId, setSelectedTicketId] = useState("");
 
   const router = useRouter();
 
@@ -38,7 +40,7 @@ export default function LinkTicket({ id }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ticket: n,
+        ticket: selectedTicketId,
       }),
     });
   }
@@ -118,83 +120,23 @@ export default function LinkTicket({ id }) {
                         Link the selected ticket with another in order to keep
                         track of multiple tickets for the same or similar jobs.
                       </p>
-                      <Listbox value={n} onChange={setN} className="z-50">
-                        {({ open }) => (
-                          <>
-                            <div className="mt-1 relative">
-                              <Listbox.Button className="relative w-full rounded-md border border-border/70 bg-background/60 shadow-sm pl-3 pr-10 py-2 text-left text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 sm:text-sm">
-                                <span className="block truncate">
-                                  {n
-                                    ? n.title + " - #" + n.id
-                                    : "Please select new user"}
-                                </span>
-                                <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                  <SelectorIcon
-                                    className="h-5 w-5 text-gray-400"
-                                    aria-hidden="true"
-                                  />
-                                </span>
-                              </Listbox.Button>
-
-                              <Transition
-                                show={open}
-                                as={Fragment}
-                                leave="transition ease-in duration-100"
-                                leaveFrom="opacity-100"
-                                leaveTo="opacity-0"
-                              >
-                                <Listbox.Options className="absolute z-50 mt-1 w-full rounded-md bg-popover py-1 text-base shadow-lg ring-1 ring-border/70 overflow-auto focus:outline-none sm:text-sm">
-                                  {tickets.map((ticket) => (
-                                    <Listbox.Option
-                                      key={ticket.id}
-                                      className={({ active }) =>
-                                        classNames(
-                                          active
-                                            ? "text-white bg-indigo-600"
-                                            : "text-gray-900",
-                                          "cursor-default select-none relative py-2 pl-3 pr-9"
-                                        )
-                                      }
-                                      value={ticket}
-                                    >
-                                      {({ n, active }) => (
-                                        <>
-                                          <span
-                                            className={classNames(
-                                              n
-                                                ? "font-semibold"
-                                                : "font-normal",
-                                              "block truncate"
-                                            )}
-                                          >
-                                            {ticket.title} - #{ticket.id}
-                                          </span>
-
-                                          {n ? (
-                                            <span
-                                              className={classNames(
-                                                active
-                                                  ? "text-white"
-                                                  : "text-indigo-600",
-                                                "absolute inset-y-0 right-0 flex items-center pr-4"
-                                              )}
-                                            >
-                                              <CheckIcon
-                                                className="h-5 w-5"
-                                                aria-hidden="true"
-                                              />
-                                            </span>
-                                          ) : null}
-                                        </>
-                                      )}
-                                    </Listbox.Option>
-                                  ))}
-                                </Listbox.Options>
-                              </Transition>
-                            </div>
-                          </>
-                        )}
-                      </Listbox>
+                      <div className="mt-2">
+                        <Select
+                          value={selectedTicketId}
+                          onValueChange={setSelectedTicketId}
+                        >
+                          <SelectTrigger className="bg-background/60">
+                            <SelectValue placeholder="Please select a ticket" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {tickets?.map((ticket) => (
+                              <SelectItem key={ticket.id} value={ticket.id}>
+                                {ticket.title} - #{ticket.id}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
                       <button
                         onClick={() => {

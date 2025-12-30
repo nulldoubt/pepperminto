@@ -1,18 +1,19 @@
-import { useState, useEffect, Fragment } from "react";
-import { Listbox, Transition } from "@headlessui/react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { useState, useEffect } from "react";
 import useTranslation from "next-translate/useTranslation";
 import { useRouter } from "next/router";
 import { useUser } from "../store/session";
 import { getCookie } from "cookies-next";
 import { toast } from "@/shadcn/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 import dynamic from "next/dynamic";
 
 const Editor = dynamic(() => import("../components/BlockEditor"), { ssr: false });
-
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(" ");
-}
 
 const type = [
   { id: 5, name: "Incident" },
@@ -31,15 +32,17 @@ export default function CreateTicket() {
   const { user } = useUser();
 
   const [name, setName] = useState("");
-  const [company, setCompany] = useState<any>();
-  const [engineer, setEngineer] = useState<any>();
+  const [companyId, setCompanyId] = useState("");
+  const [engineerId, setEngineerId] = useState("");
   const [email, setEmail] = useState("");
   const [issue, setIssue] = useState<any>("");
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("medium");
   const [options, setOptions] = useState<any>();
   const [users, setUsers] = useState<any>();
-  const [selected, setSelected] = useState<any>(type[3]);
+  const [selectedType, setSelectedType] = useState<string>(
+    type[3]?.name ?? ""
+  );
 
   const fetchClients = async () => {
     await fetch(`/api/v1/clients/all`, {
@@ -87,12 +90,14 @@ export default function CreateTicket() {
       body: JSON.stringify({
         name,
         title,
-        company,
+        company: companyId || undefined,
         email,
         detail: issue,
         priority,
-        engineer,
-        type: selected.name,
+        engineer: engineerId
+          ? users?.find((user: any) => user.id === engineerId)
+          : undefined,
+        type: selectedType,
         createdBy: {
           id: user.id,
           name: user.name,
@@ -129,301 +134,54 @@ export default function CreateTicket() {
     <div className="h-full bg-white dark:bg-[#0A090C]">
       <div className="w-full border-b-[1px] p-2 flex flex-row justify-between items-center">
         <div className="flex flex-row space-x-4">
-          <Listbox value={company} onChange={setCompany}>
-            {({ open }) => (
-              <>
-                <div className="relative">
-                  <Listbox.Button className="relative w-full min-w-[172px] cursor-default rounded-md bg-white dark:bg-[#0A090C] dark:text-white py-1 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                    <span className="block truncate">
-                      {company === undefined
-                        ? t("select_a_client")
-                        : company === ""
-                        ? t("select_a_client")
-                        : company.name}
-                    </span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ChevronUpDownIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </Listbox.Button>
-
-                  <Transition
-                    show={open}
-                    as={Fragment}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <Listbox.Options className="absolute z-10  max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-[#0A090C] dark:text-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      <Listbox.Option
-                        className={({ active }) =>
-                          classNames(
-                            active
-                              ? "bg-indigo-600 text-white"
-                              : "text-gray-900 dark:text-white",
-                            "relative cursor-default select-none py-2 pl-3 pr-9"
-                          )
-                        }
-                        value={undefined}
-                      >
-                        {({ selected, active }) => (
-                          <>
-                            <span
-                              className={classNames(
-                                selected ? "font-semibold" : "font-normal",
-                                "block truncate"
-                              )}
-                            >
-                              Unassigned
-                            </span>
-
-                            {selected ? (
-                              <span
-                                className={classNames(
-                                  active ? "text-white" : "text-indigo-600",
-                                  "absolute inset-y-0 right-0 flex items-center pr-4"
-                                )}
-                              >
-                                <CheckIcon
-                                  className="h-5 w-5"
-                                  aria-hidden="true"
-                                />
-                              </span>
-                            ) : null}
-                          </>
-                        )}
-                      </Listbox.Option>
-                      {options !== undefined &&
-                        options.map((client: any) => (
-                          <Listbox.Option
-                            key={client.id}
-                            className={({ active }) =>
-                              classNames(
-                                active
-                                  ? "bg-indigo-600 text-white"
-                                  : "text-gray-900 dark:text-white",
-                                "relative cursor-default select-none py-2 pl-3 pr-9"
-                              )
-                            }
-                            value={client}
-                          >
-                            {({ selected, active }) => (
-                              <>
-                                <span
-                                  className={classNames(
-                                    selected ? "font-semibold" : "font-normal",
-                                    "block truncate"
-                                  )}
-                                >
-                                  {client.name}
-                                </span>
-
-                                {selected ? (
-                                  <span
-                                    className={classNames(
-                                      active ? "text-white" : "text-indigo-600",
-                                      "absolute inset-y-0 right-0 flex items-center pr-4"
-                                    )}
-                                  >
-                                    <CheckIcon
-                                      className="h-5 w-5"
-                                      aria-hidden="true"
-                                    />
-                                  </span>
-                                ) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                    </Listbox.Options>
-                  </Transition>
-                </div>
-              </>
-            )}
-          </Listbox>
-          <Listbox value={engineer} onChange={setEngineer}>
-            {({ open }) => (
-              <>
-                <div className="relative">
-                  <Listbox.Button className="relative w-full min-w-[172px] cursor-default rounded-md bg-white dark:bg-[#0A090C] dark:text-white py-1 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                    <span className="block truncate">
-                      {engineer === undefined
-                        ? t("select_an_engineer")
-                        : engineer.name}
-                    </span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ChevronUpDownIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </Listbox.Button>
-
-                  <Transition
-                    show={open}
-                    as={Fragment}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-[#0A090C] dark:text-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      <Listbox.Option
-                        className={({ active }) =>
-                          classNames(
-                            active
-                              ? "bg-indigo-600 text-white"
-                              : "text-gray-900 dark:text-white",
-                            "relative cursor-default select-none py-2 pl-3 pr-9"
-                          )
-                        }
-                        value={undefined}
-                      >
-                        {({ selected, active }) => (
-                          <>
-                            <span
-                              className={classNames(
-                                selected ? "font-semibold" : "font-normal",
-                                "block truncate"
-                              )}
-                            >
-                              Unassigned
-                            </span>
-
-                            {selected ? (
-                              <span
-                                className={classNames(
-                                  active ? "text-white" : "text-indigo-600",
-                                  "absolute inset-y-0 right-0 flex items-center pr-4"
-                                )}
-                              >
-                                <CheckIcon
-                                  className="h-5 w-5"
-                                  aria-hidden="true"
-                                />
-                              </span>
-                            ) : null}
-                          </>
-                        )}
-                      </Listbox.Option>
-                      {users !== undefined &&
-                        users.map((user: any) => (
-                          <Listbox.Option
-                            key={user.id}
-                            className={({ active }) =>
-                              classNames(
-                                active
-                                  ? "bg-indigo-600 text-white"
-                                  : "text-gray-900 dark:text-white",
-                                "relative cursor-default select-none py-2 pl-3 pr-9"
-                              )
-                            }
-                            value={user}
-                          >
-                            {({ selected, active }) => (
-                              <>
-                                <span
-                                  className={classNames(
-                                    selected ? "font-semibold" : "font-normal",
-                                    "block truncate"
-                                  )}
-                                >
-                                  {user.name}
-                                </span>
-
-                                {selected ? (
-                                  <span
-                                    className={classNames(
-                                      active ? "text-white" : "text-indigo-600",
-                                      "absolute inset-y-0 right-0 flex items-center pr-4"
-                                    )}
-                                  >
-                                    <CheckIcon
-                                      className="h-5 w-5"
-                                      aria-hidden="true"
-                                    />
-                                  </span>
-                                ) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                    </Listbox.Options>
-                  </Transition>
-                </div>
-              </>
-            )}
-          </Listbox>
-          <Listbox value={selected} onChange={setSelected}>
-            {({ open }) => (
-              <>
-                <div className="relative">
-                  <Listbox.Button className="relative w-full min-w-[172px] cursor-default rounded-md bg-white dark:bg-[#0A090C] dark:text-white py-1 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6">
-                    <span className="block truncate">{selected.name}</span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ChevronUpDownIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </Listbox.Button>
-
-                  <Transition
-                    show={open}
-                    as={Fragment}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-[#0A090C] dark:text-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      {type.map((person) => (
-                        <Listbox.Option
-                          key={person.id}
-                          className={({ active }) =>
-                            classNames(
-                              active
-                                ? "bg-gray-400 text-white"
-                                : "text-gray-900 dark:text-white",
-                              "relative cursor-default select-none py-2 pl-3 pr-9"
-                            )
-                          }
-                          value={person}
-                        >
-                          {({ selected, active }) => (
-                            <>
-                              <span
-                                className={classNames(
-                                  selected ? "font-semibold" : "font-normal",
-                                  "block truncate"
-                                )}
-                              >
-                                {person.name}
-                              </span>
-
-                              {selected ? (
-                                <span
-                                  className={classNames(
-                                    active ? "text-white" : "text-indigo-600",
-                                    "absolute inset-y-0 right-0 flex items-center pr-4"
-                                  )}
-                                >
-                                  <CheckIcon
-                                    className="h-5 w-5"
-                                    aria-hidden="true"
-                                  />
-                                </span>
-                              ) : null}
-                            </>
-                          )}
-                        </Listbox.Option>
-                      ))}
-                    </Listbox.Options>
-                  </Transition>
-                </div>
-              </>
-            )}
-          </Listbox>
+          <Select
+            value={companyId || "unassigned"}
+            onValueChange={(value) =>
+              setCompanyId(value === "unassigned" ? "" : value)
+            }
+          >
+            <SelectTrigger className="min-w-[172px] bg-background/60">
+              <SelectValue placeholder={t("select_a_client")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
+              {options?.map((client: any) => (
+                <SelectItem key={client.id} value={client.id}>
+                  {client.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={engineerId || "unassigned"}
+            onValueChange={(value) =>
+              setEngineerId(value === "unassigned" ? "" : value)
+            }
+          >
+            <SelectTrigger className="min-w-[172px] bg-background/60">
+              <SelectValue placeholder={t("select_an_engineer")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
+              {users?.map((user: any) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedType} onValueChange={setSelectedType}>
+            <SelectTrigger className="min-w-[172px] bg-background/60">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {type.map((item) => (
+                <SelectItem key={item.id} value={item.name}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <button

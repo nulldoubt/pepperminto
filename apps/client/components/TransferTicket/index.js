@@ -1,23 +1,21 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Dialog, DialogBackdrop, Transition, Listbox } from "@headlessui/react";
+import { Dialog, DialogBackdrop, Transition } from "@headlessui/react";
 // import { XIcon } from "@heroicons/react/24/outline";
-import {
-  CheckIcon,
-  DocumentDuplicateIcon,
-  // SelectorIcon,
-  UserPlusIcon,
-} from "@heroicons/react/20/solid";
+import { DocumentDuplicateIcon } from "@heroicons/react/20/solid";
 import { useRouter } from "next/router";
 import { Button } from "@/shadcn/ui/button";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 
 export default function TransferTicket({ id }) {
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState();
-  const [n, setN] = useState();
+  const [selectedUserId, setSelectedUserId] = useState("");
 
   const router = useRouter();
 
@@ -37,14 +35,14 @@ export default function TransferTicket({ id }) {
   };
 
   async function postData() {
-    console.log(n.id);
+    if (!selectedUserId) return;
     await fetch(`/api/v1/ticket/${id}/transfer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        user: n.id,
+        user: selectedUserId,
       }),
     })
       .then((res) => res.json())
@@ -130,84 +128,26 @@ export default function TransferTicket({ id }) {
                       Transfer Ticket
                     </Dialog.Title>
                     <div className="mt-2 pb-16">
-                      <Listbox value={n} onChange={setN} className="z-50">
-                        {({ open }) => (
-                          <>
-                            <Listbox.Label className="block text-sm font-medium text-foreground">
-                              Assigned to
-                            </Listbox.Label>
-                            <div className="mt-1 relative">
-                              <Listbox.Button className="relative w-full rounded-md border border-border/70 bg-background/60 shadow-sm pl-3 pr-10 py-2 text-left text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 sm:text-sm">
-                                <span className="block truncate">
-                                  {n ? n.name : "Please select new user"}
-                                </span>
-                                <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                  {/* <SelectorIcon
-                                    className="h-5 w-5 text-gray-400"
-                                    aria-hidden="true"
-                                  /> */}
-                                </span>
-                              </Listbox.Button>
-
-                              <Transition
-                                show={open}
-                                as={Fragment}
-                                leave="transition ease-in duration-100"
-                                leaveFrom="opacity-100"
-                                leaveTo="opacity-0"
-                              >
-                                <Listbox.Options className="absolute z-50 mt-1 w-full rounded-md bg-popover py-1 text-base shadow-lg ring-1 ring-border/70 overflow-auto focus:outline-none sm:text-sm">
-                                  {users.map((user) => (
-                                    <Listbox.Option
-                                      key={user.id}
-                                      className={({ active }) =>
-                                        classNames(
-                                          active
-                                            ? "text-white bg-indigo-600"
-                                            : "text-gray-900",
-                                          "cursor-default select-none relative py-2 pl-3 pr-9"
-                                        )
-                                      }
-                                      value={user}
-                                    >
-                                      {({ n, active }) => (
-                                        <>
-                                          <span
-                                            className={classNames(
-                                              n
-                                                ? "font-semibold"
-                                                : "font-normal",
-                                              "block truncate"
-                                            )}
-                                          >
-                                            {user.name}
-                                          </span>
-
-                                          {n ? (
-                                            <span
-                                              className={classNames(
-                                                active
-                                                  ? "text-white"
-                                                  : "text-indigo-600",
-                                                "absolute inset-y-0 right-0 flex items-center pr-4"
-                                              )}
-                                            >
-                                              <CheckIcon
-                                                className="h-5 w-5"
-                                                aria-hidden="true"
-                                              />
-                                            </span>
-                                          ) : null}
-                                        </>
-                                      )}
-                                    </Listbox.Option>
-                                  ))}
-                                </Listbox.Options>
-                              </Transition>
-                            </div>
-                          </>
-                        )}
-                      </Listbox>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-foreground">
+                          Assigned to
+                        </label>
+                        <Select
+                          value={selectedUserId}
+                          onValueChange={setSelectedUserId}
+                        >
+                          <SelectTrigger className="bg-background/60">
+                            <SelectValue placeholder="Please select new user" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {users?.map((user) => (
+                              <SelectItem key={user.id} value={user.id}>
+                                {user.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
                       <button
                         onClick={() => {
