@@ -144,7 +144,7 @@ services:
     image: pepperlabs/peppermint:latest
     ports:
       - 3000:3000
-      - 5003:5003
+      - 3001:3001
     restart: always
     depends_on:
       - peppermint_postgres
@@ -223,7 +223,7 @@ server {
     add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
 
     location / {
-        proxy_pass http://127.0.0.1:5003;
+        proxy_pass http://127.0.0.1:3001;
         proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

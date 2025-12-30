@@ -53,7 +53,7 @@ services:
     image: pepperlabs/peppermint:latest
     ports:
       - 3000:3000
-      - 5003:5003
+      - 3001:3001
     restart: always
     depends_on:
       - peppermint_postgres

@@ -6,7 +6,7 @@ Clean Architecture for node.js projects using fastify and prisma
 
 ## Swagger docs
 
-Start the API and open `http://localhost:5003/docs` to view the Swagger UI.
+Start the API and open `http://localhost:3001/docs` to view the Swagger UI.
 src
 │   main.ts         # Application entry point\
 └───controllers     # route controllers for all the endpoints of the app

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5003";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 type Article = {
   title: string;

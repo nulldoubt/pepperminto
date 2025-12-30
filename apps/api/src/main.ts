@@ -151,7 +151,7 @@ server.register(async (app) => {
       },
       servers: [
         {
-          url: process.env.API_BASE_URL || "http://localhost:5003",
+          url: process.env.API_BASE_URL || "http://localhost:3001",
         },
       ],
       components: {

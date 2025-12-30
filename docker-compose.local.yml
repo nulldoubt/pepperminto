@@ -17,7 +17,7 @@ services:
     build: "."
     ports:
       - 3000:3000
-      - 5001:5003
+      - 5001:3001
     restart: always
     depends_on:
       - peppermint_postgres

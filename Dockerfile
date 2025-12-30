@@ -36,7 +36,7 @@ COPY --from=builder /app/apps/client/public ./apps/client/public
 COPY --from=builder /app/ecosystem.config.js ./ecosystem.config.js
 
 # Expose the ports for both apps
-EXPOSE 3000 5003
+EXPOSE 3000 3001
 
 # Install PM2 globally
 RUN npm install -g pm2
