@@ -79,4 +79,9 @@ docker buildx build --platform linux/amd64,linux/arm64 \
   -f apps/knowledge-base/Dockerfile \
   -t nulldoubt/pepperminto-knowledge-base:latest \
   --push .
+
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -f apps/landing-page/Dockerfile \
+  -t nulldoubt/pepperminto-landing-page:latest \
+  --push .
 ```

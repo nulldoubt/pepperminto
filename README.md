@@ -29,6 +29,7 @@ This is a fork of the original Peppermint project.
 - `apps/client` – Admin dashboard (Next.js)
 - `apps/knowledge-base` – Public knowledge base (Next.js)
 - `apps/docs` – Documentation site (Nextra)
+- `apps/landing-page` – Marketing landing page (Next.js)
 
 ## 🚀 Local development
 
@@ -43,6 +44,7 @@ Default ports:
 - `api` → `http://localhost:3001`
 - `client` → `http://localhost:3002`
 - `docs` → `http://localhost:3003`
+- `landing-page` → `http://localhost:3004`
 
 ## 📚 Documentation
 
@@ -75,6 +77,11 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 docker buildx build --platform linux/amd64,linux/arm64 \
   -f apps/knowledge-base/Dockerfile \
   -t nulldoubt/pepperminto-knowledge-base:latest \
+  --push .
+
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -f apps/landing-page/Dockerfile \
+  -t nulldoubt/pepperminto-landing-page:latest \
   --push .
 ```
 

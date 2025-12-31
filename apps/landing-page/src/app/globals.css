@@ -1,0 +1,35 @@
+@config "../../tailwind.config.ts";
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --background: #f6f1e7;
+  --foreground: #14110f;
+  --muted: #5c4f45;
+  --accent: #0f766e;
+  --accent-strong: #0a4f4a;
+  --surface: #fefaf3;
+  --surface-strong: #fff6e9;
+  --border: #e7dfd1;
+}
+
+body {
+  background: radial-gradient(circle at top, #fff8ee 0%, #f6f1e7 45%, #efe5d6 100%);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: #0f766e;
+  color: #fefaf3;
+}
+
+.bg-grain {
+  background-image: radial-gradient(rgba(20, 17, 15, 0.08) 0.6px, transparent 0.6px);
+  background-size: 28px 28px;
+}
+
+.shadow-soft {
+  box-shadow: 0 24px 60px -45px rgba(15, 118, 110, 0.6);
+}

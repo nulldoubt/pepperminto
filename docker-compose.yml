@@ -47,5 +47,11 @@ services:
     ports:
       - "3003:3003"
 
+  landing-page:
+    image: nulldoubt/pepperminto-landing-page:latest
+    restart: unless-stopped
+    ports:
+      - "3004:3004"
+
 volumes:
   peppermint_db:
