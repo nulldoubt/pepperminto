@@ -19,6 +19,7 @@ FROM base AS builder
 # Set working directory
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.26.2 --activate
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY . .
 RUN pnpm dlx turbo@2.7.2 prune --scope=api --docker
 

@@ -5,6 +5,7 @@ RUN apk add --no-cache libc6-compat
 FROM base AS builder
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.26.2 --activate
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY . .
 RUN pnpm dlx turbo@2.7.2 prune --scope=docs --docker
 
