@@ -46,7 +46,7 @@ COPY turbo.json /app/turbo.json
 # RUN rm -f apps/api/.env
 
 RUN pnpm --filter api prisma generate --schema ./apps/api/src/prisma/schema.prisma
-RUN pnpm turbo run build --filter=database
+RUN pnpm --filter api build
 
 FROM base AS runner
 WORKDIR /app
