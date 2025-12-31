@@ -1,3 +1,5 @@
+# Build:
+# docker buildx build --platform linux/amd64,linux/arm64 -f apps/docs/Dockerfile -t nulldoubt/pepperminto-docs:latest --push .
 FROM node:22-alpine AS base
 
 RUN apk add --no-cache libc6-compat

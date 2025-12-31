@@ -1,3 +1,5 @@
+# Build:
+# docker buildx build --platform linux/amd64,linux/arm64 -f apps/api/Dockerfile -t nulldoubt/pepperminto-api:latest --push .
 # FROM node:16
 
 # ENV port=8090

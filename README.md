@@ -54,6 +54,30 @@ pnpm --filter docs dev
 
 The docs are in `apps/docs/content` and the sidebar order is defined in `apps/docs/content/_meta.js`.
 
+## 🐳 Docker buildx commands
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -f apps/api/Dockerfile \
+  -t nulldoubt/pepperminto-api:latest \
+  --push .
+
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -f apps/client/Dockerfile \
+  -t nulldoubt/pepperminto-client:latest \
+  --push .
+
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -f apps/docs/Dockerfile \
+  -t nulldoubt/pepperminto-docs:latest \
+  --push .
+
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -f apps/knowledge-base/Dockerfile \
+  -t nulldoubt/pepperminto-knowledge-base:latest \
+  --push .
+```
+
 ## Repo
 
 - Pepperminto fork: https://github.com/nulldoubt/Pepperminto
