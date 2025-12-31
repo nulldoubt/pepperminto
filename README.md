@@ -29,7 +29,6 @@ This is a fork of the original Peppermint project.
 - `apps/client` – Admin dashboard (Next.js)
 - `apps/knowledge-base` – Public knowledge base (Next.js)
 - `apps/docs` – Documentation site (Nextra)
-- `apps/landing` – Marketing landing page (Next.js)
 
 ## 🚀 Local development
 
@@ -44,7 +43,6 @@ Default ports:
 - `api` → `http://localhost:3001`
 - `client` → `http://localhost:3002`
 - `docs` → `http://localhost:3003`
-- `landing` → `http://localhost:3004`
 
 ## 📚 Documentation
 
