@@ -131,15 +131,12 @@ export default function Home() {
             <div>
               <dl className="grid grid-cols-1 gap-5 sm:grid-cols-3">
                 {stats.map((item) => (
-                  <Link href={item.href}>
-                    <div
-                      key={item.name}
-                      className="px-4 py-5 bg-gray-900 shadow rounded-lg overflow-hidden sm:p-6"
-                    >
-                      <dt className="text-sm font-medium text-white truncate">
+                  <Link key={item.name} href={item.href}>
+                    <div className="rounded-lg border border-border bg-card px-4 py-5 shadow-sm sm:p-6">
+                      <dt className="text-sm font-medium text-muted-foreground truncate">
                         {item.name}
                       </dt>
-                      <dd className="mt-1 text-3xl font-semibold text-white">
+                      <dd className="mt-1 text-3xl font-semibold text-foreground">
                         {item.stat}
                       </dd>
                     </div>
