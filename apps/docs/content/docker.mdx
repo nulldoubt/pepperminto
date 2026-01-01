@@ -1,54 +1,88 @@
 
 # Docker Install
 
-Pepperminto can still be deployed using the upstream `pepperlabs/peppermint` Docker image while the fork branding is Pepperminto.
+Use the root compose file for a full multi-service deployment:
+
+https://github.com/nulldoubt/pepperminto/blob/main/docker-compose.yml
 
 Requirements:
 
 - Docker
 - Docker Compose
 
-```docker
-version: "3.1"
+## Demo docker-compose.yml
 
+```yaml
 services:
-  peppermint_postgres:
-    container_name: peppermint_postgres
-    image: postgres:latest
-    restart: always
+  postgres:
+    image: postgres:17.6-alpine
+    container_name: pepperminto_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pepperminto
+      POSTGRES_PASSWORD: pepperminto
+      POSTGRES_DB: pepperminto
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: peppermint
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: peppermint
+      - pepperminto_postgres:/var/lib/postgresql/data
+    expose:
+      - 5432
 
-  peppermint:
-    container_name: peppermint
-    image: pepperlabs/peppermint:latest
-    ports:
-      - 3000:3000
-      - 3001:3001
-    restart: always
+  api:
+    image: nulldoubt/pepperminto-api:latest
+    container_name: pepperminto_api
+    restart: unless-stopped
+    pull_policy: always
     depends_on:
-      - peppermint_postgres
+      - postgres
+    env_file: .env
     environment:
-      DB_USERNAME: "peppermint"
-      DB_PASSWORD: "1234"
-      DB_HOST: "peppermint_postgres"
-      SECRET: 'peppermint4life'
+      DATABASE_URL: postgresql://pepperminto:pepperminto@postgres:5432/pepperminto
+    ports:
+      - "3121:3001"
+
+  client:
+    image: nulldoubt/pepperminto-client:latest
+    container_name: pepperminto_client
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3122:3002"
+
+  docs:
+    image: nulldoubt/pepperminto-docs:latest
+    container_name: pepperminto_docs
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3123:3003"
+
+  knowledge-base:
+    image: nulldoubt/pepperminto-knowledge-base:latest
+    container_name: pepperminto_kb
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3120:3000"
+
+  landing-page:
+    image: nulldoubt/pepperminto-landing-page:latest
+    container_name: pepperminto_landing
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3124:3004"
 
 volumes:
- pgdata:
+  pepperminto_postgres:
 ```
 
-After you have created the docker-compose.yml file, run the following command:
+Copy `.env.example` to `.env`, then run:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-Then you can access the application at http://your-server-ip:3000
+Then you can access the services from their mapped ports (3120-3124) or your reverse proxy.
 
 The default login credentials for the admin account are:
 
