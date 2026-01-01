@@ -4,8 +4,6 @@ import swaggerUI from "@fastify/swagger-ui";
 import "dotenv/config";
 import Fastify, { FastifyInstance } from "fastify";
 import multer from "fastify-multer";
-import fs from "fs";
-
 import { exec } from "child_process";
 import fs from "fs";
 import { track } from "./lib/hog";
