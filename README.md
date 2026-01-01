@@ -38,6 +38,10 @@ pnpm install
 pnpm dev
 ```
 
+Environment variables:
+
+- Copy `.env.example` to `.env` and adjust values as needed.
+
 Default ports:
 
 - `knowledge-base` → `http://localhost:3000`
