@@ -404,6 +404,15 @@ export default function PortalLayout({ children }: any) {
           </div>
 
           <main className="bg-white dark:bg-[#0A090C]">{children}</main>
+          <footer className="border-t border-gray-200 bg-white px-4 py-3 text-xs text-gray-500 dark:border-gray-800 dark:bg-[#0A090C] dark:text-gray-400">
+            <span>Source available at </span>
+            <Link
+              href="https://github.com/nulldoubt/Pepperminto"
+              className="underline underline-offset-4 hover:text-gray-900 dark:hover:text-white"
+            >
+              github.com/nulldoubt/Pepperminto
+            </Link>
+          </footer>
         </div>
       </div>
     )

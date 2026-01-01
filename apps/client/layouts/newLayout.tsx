@@ -534,6 +534,15 @@ export default function NewLayout({ children }: any) {
           {!loading && !user.external_user && (
             <main className="bg-background min-h-screen">{children}</main>
           )}
+          <footer className="border-t bg-background px-4 py-3 text-xs text-muted-foreground">
+            <span>Source available at </span>
+            <Link
+              href="https://github.com/nulldoubt/Pepperminto"
+              className="underline underline-offset-4 hover:text-foreground"
+            >
+              github.com/nulldoubt/Pepperminto
+            </Link>
+          </footer>
         </div>
       </div>
     )

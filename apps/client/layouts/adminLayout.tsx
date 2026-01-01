@@ -331,6 +331,15 @@ export default function AdminLayout({ children }: any) {
             {!loading && !user.external_user && (
               <main className="bg-background m-4">{children}</main>
             )}
+            <footer className="border-t bg-background px-4 py-3 text-xs text-muted-foreground">
+              <span>Source available at </span>
+              <Link
+                href="https://github.com/nulldoubt/Pepperminto"
+                className="underline underline-offset-4 hover:text-foreground"
+              >
+                github.com/nulldoubt/Pepperminto
+              </Link>
+            </footer>
           </div>
         </div>
       </SidebarProvider>
