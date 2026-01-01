@@ -7,6 +7,7 @@ import multer from "fastify-multer";
 import fs from "fs";
 
 import { exec } from "child_process";
+import fs from "fs";
 import { track } from "./lib/hog";
 import { getEmails } from "./lib/imap";
 import { checkToken } from "./lib/jwt";
@@ -179,8 +180,11 @@ server.register(async (app) => {
 const start = async () => {
   try {
     // Run prisma generate and migrate commands before starting the server
+    const prismaBin = process.env.PRISMA_CLI_PATH;
     const prismaCmd =
-      process.env.PRISMA_CLI_PATH ?? "./node_modules/.bin/prisma";
+      prismaBin && fs.existsSync(prismaBin)
+        ? prismaBin
+        : "node ./apps/api/node_modules/prisma/build/index.js";
     const prismaSchema =
       process.env.PRISMA_SCHEMA_PATH ??
       "./apps/api/src/prisma/schema.prisma";
