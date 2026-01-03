@@ -256,7 +256,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               Pepperminto
             </span>
             <span className="truncate text-xs text-muted-foreground">
-              version: 0.1.2
+              version: 0.1.3
             </span>
           </div>
         </div>

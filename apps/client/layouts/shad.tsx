@@ -50,7 +50,7 @@ export default function ShadLayout({ children }: any) {
                     {user.isAdmin && (
                       <Link href="https://github.com/nulldoubt/Pepperminto/releases">
                         <span className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                          Version 0.1.2
+                          Version 0.1.3
                         </span>
                       </Link>
                     )}
