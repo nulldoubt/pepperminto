@@ -101,16 +101,22 @@ export default async function ArticlePage({
             Pepperminto Help Center
           </span>
         </Link>
-        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300">
+        <div className="hidden items-center gap-4 text-sm text-slate-600 dark:text-slate-300 md:flex">
           <Link href="/" className="hover:text-slate-900 dark:hover:text-white">
             Back to all articles
           </Link>
-          <Link href={DASHBOARD_URL} className="hover:text-slate-900 dark:hover:text-white">
+          <Link
+            href={DASHBOARD_URL}
+            className="hover:text-slate-900 dark:hover:text-white"
+          >
             Contact support
           </Link>
           <Link href={BASE_URL} className="hover:text-slate-900 dark:hover:text-white">
             Main site
           </Link>
+          <ThemeToggle />
+        </div>
+        <div className="md:hidden">
           <ThemeToggle />
         </div>
       </header>

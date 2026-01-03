@@ -121,6 +121,9 @@ export default async function KnowledgeBasePage({
           </a>
           <ThemeToggle />
         </nav>
+        <div className="md:hidden">
+          <ThemeToggle />
+        </div>
       </header>
 
       <section className="mx-auto w-full max-w-6xl px-6 pb-12 pt-4">
