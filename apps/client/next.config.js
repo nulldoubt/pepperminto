@@ -15,14 +15,5 @@ module.exports = nextTranslate(
       DOCS_URL: process.env.DOCS_URL,
       KNOWLEDGE_BASE_URL: process.env.KNOWLEDGE_BASE_URL,
     },
-    async rewrites() {
-      const apiUrl = process.env.API_URL || "http://localhost:3001";
-      return [
-        {
-          source: "/api/v1/:path*",
-          destination: `${apiUrl}/api/v1/:path*`,
-        },
-      ];
-    },
   })
 );
